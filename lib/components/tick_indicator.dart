@@ -53,7 +53,7 @@ class TickIndicator extends StatelessWidget {
               height: 10,
               child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: Theme.of(context).colorScheme.inversePrimary));
+                  color: Theme.of(context).colorScheme.primary));
         }
         return Container();
       })

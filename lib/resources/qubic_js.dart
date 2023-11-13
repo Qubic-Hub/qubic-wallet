@@ -81,16 +81,15 @@ class QubicJs {
   }
 
   Future<void> validateFileStreamSignature() async {
-    if ((!validatedFileStream) || (validatedFileStream)) {
-      final jsSource = await controller!.getHtml();
-      final checksum = crypto.md5.convert(utf8.encode(jsSource!)).toString();
+    final jsSource = await controller!.getHtml();
+    final checksum = crypto.md5.convert(utf8.encode(jsSource!)).toString();
 
-      if (checksum != INDEX_MD5) {
-        throw Exception(
-            "CRITICAL: YOUR INSTALLATION OF QUBIC WALLET IS TAMPERED. PLEASE UNINSTALL AND DOWNLOAD AGAIN FROM QUBIC-HUB.COM CHECKSUM:${checksum} VS ${INDEX_MD5}");
-      }
-      validatedFileStream = true;
+    if (checksum != INDEX_MD5) {
+      throw Exception(
+          "CRITICAL: YOUR INSTALLATION OF QUBIC WALLET IS TAMPERED. PLEASE UNINSTALL AND DOWNLOAD AGAIN FROM QUBIC-HUB.COM CHECKSUM:${checksum} VS ${INDEX_MD5}");
     }
+    validatedFileStream = true;
+
     return;
   }
 

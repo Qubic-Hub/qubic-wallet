@@ -5,6 +5,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:qubic_wallet/di.dart';
 import 'package:qubic_wallet/flutter_flow/theme_paddings.dart';
+import 'package:qubic_wallet/helpers/show_snackbar.dart';
 import 'package:qubic_wallet/stores/application_store.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -148,12 +149,7 @@ class _TransfersListState extends State<TransfersList> {
         .where(((element) =>
             element.publicId == generatedPublicId!.replaceAll(",", "_")))
         .isNotEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        elevation: 99,
-        duration: Duration(seconds: 3),
-        behavior: SnackBarBehavior.floating,
-        content: Text('This ID already exists in your wallet'),
-      ));
+      showSnackBar('This ID already exists in your wallet');
       return;
     }
 

@@ -191,6 +191,7 @@ class _TabSettingsState extends State<TabSettings> {
               leading: Icon(Icons.logout,
                   color: Theme.of(context).colorScheme.error),
               title: const Text('Sign out'),
+              trailing: Container(),
               onPressed: (BuildContext context) {
                 appStore.signOut();
                 timedController.stopFetchTimer();
@@ -201,6 +202,7 @@ class _TabSettingsState extends State<TabSettings> {
               leading: Icon(Icons.cleaning_services_outlined,
                   color: Theme.of(context).colorScheme.error),
               title: const Text('Wipe wallet data'),
+              trailing: Container(),
               onPressed: (BuildContext context) async {
                 //MODAL TO CHECK IF USER AGREES
                 await wipeWalletDataDialog(context);

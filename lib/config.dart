@@ -1,5 +1,7 @@
 // ignore_for_file: constant_identifier_names
 
+import 'package:qubic_wallet/models/qubic_helper_config.dart';
+
 abstract class Config {
   /// General backend via qubic.li
   static const walletDomain = "api.qubic.li";
@@ -23,4 +25,22 @@ abstract class Config {
   // The qubic-hub.com backend
   static const servicesDomain = "wallet.qubic-hub.com";
   static const URL_VersionInfo = "/versionInfo.php";
+
+  //Qubic Helper Utilities
+  static final qubicHelper = QubicHelperConfig(
+      win64: QubicHelperConfigEntry(
+          filename: "qubic-helper-win-x64-1_0_0.exe",
+          downloadPath:
+              "https://github.com/Qubic-Hub/qubic-helper-utils/releases/download/1.0.0/qubic-helper-win-x64-1_0_0.exe",
+          checksum: "e1d62abd68662ec3d79b200eff966247"),
+      linux64: QubicHelperConfigEntry(
+          filename: "qubic-helper-linux-x64-1_0_0",
+          downloadPath:
+              "https://github.com/Qubic-Hub/qubic-helper-utils/releases/download/1.0.0/qubic-helper-linux-x64-1_0_0",
+          checksum: "9bf4146e1f122f6618004f93af5bc59c"),
+      macOs64: QubicHelperConfigEntry(
+          filename: "qubic-helper-mac-x64-1_0_0",
+          downloadPath:
+              "https://github.com/Qubic-Hub/qubic-helper-utils/releases/download/1.0.0/qubic-helper-mac-x64-1_0_0",
+          checksum: "bc9b878817bbdc4e0ede62f0869b5ea5"));
 }

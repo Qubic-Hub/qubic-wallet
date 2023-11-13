@@ -8,6 +8,7 @@ import 'package:qubic_wallet/stores/explorer_store.dart';
 import 'package:qubic_wallet/stores/qubic_hub_store.dart';
 import 'package:qubic_wallet/stores/settings_store.dart';
 import 'package:qubic_wallet/timed_controller.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import 'services/qubic_hub_service.dart';
 
@@ -22,8 +23,6 @@ void setupDI() {
   getIt.registerSingleton<QubicHubStore>(QubicHubStore());
   getIt.registerSingleton<SecureStorage>(SecureStorage());
 
-  //Resources
-  getIt.registerSingleton<QubicJs>(QubicJs());
   getIt.registerSingleton<QubicLi>(QubicLi());
   getIt.registerSingleton<QubicHub>(QubicHub());
 

@@ -5,10 +5,12 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:qubic_wallet/di.dart';
 import 'package:qubic_wallet/flutter_flow/theme_paddings.dart';
 import 'package:qubic_wallet/helpers/id_validators.dart';
+import 'package:qubic_wallet/helpers/platform_helpers.dart';
 import 'package:qubic_wallet/helpers/random.dart';
 import 'package:qubic_wallet/helpers/show_alert_dialog.dart';
+import 'package:qubic_wallet/helpers/show_snackbar.dart';
 import 'package:qubic_wallet/pages/main/wallet_contents/add_account_warning.dart';
-import 'package:qubic_wallet/resources/qubic_js.dart';
+import 'package:qubic_wallet/resources/qubic_cmd.dart';
 import 'package:qubic_wallet/stores/application_store.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
@@ -23,21 +25,22 @@ class AddAccount extends StatefulWidget {
 class _AddAccountState extends State<AddAccount> {
   final _formKey = GlobalKey<FormBuilderState>();
   final ApplicationStore appStore = getIt<ApplicationStore>();
-  final QubicJs qubicJs = QubicJs();
+  final QubicCmd qubicCmd = QubicCmd();
 
   bool detected = false;
+  bool generatingId = false;
 
   String? generatedPublicId;
   @override
   void initState() {
     super.initState();
-    qubicJs.initialize();
+    qubicCmd.initialize();
   }
 
   @override
   void dispose() {
     super.dispose();
-    qubicJs.disposeController();
+    qubicCmd.dispose();
   }
 
   void showQRScanner() {
@@ -70,13 +73,7 @@ class _AddAccountState extends State<AddAccount> {
                   if (foundSuccess) {
                     if (!detected) {
                       Navigator.pop(context);
-
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        elevation: 99,
-                        duration: Duration(seconds: 3),
-                        behavior: SnackBarBehavior.floating,
-                        content: Text('Successfully scanned QR Code'),
-                      ));
+                      showSnackBar("Successfully scanned QR Code");
                     }
                     detected = true;
                   }
@@ -176,6 +173,9 @@ class _AddAccountState extends State<AddAccount> {
                                 Container(),
                                 TextButton(
                                     onPressed: () async {
+                                      if (generatingId) {
+                                        return null;
+                                      }
                                       FocusManager.instance.primaryFocus
                                           ?.unfocus();
 
@@ -214,10 +214,14 @@ class _AddAccountState extends State<AddAccount> {
                                         value.trim().isNotEmpty &&
                                         v(value) == null) {
                                       try {
-                                        var newId = await qubicJs
+                                        setState(() {
+                                          generatingId = true;
+                                        });
+                                        var newId = await qubicCmd
                                             .getPublicIdFromSeed(value);
                                         setState(() {
                                           generatedPublicId = newId;
+                                          generatingId = false;
                                         });
                                       } catch (e) {
                                         if (e.toString().startsWith(
@@ -243,6 +247,7 @@ class _AddAccountState extends State<AddAccount> {
                                   },
                                   maxLines: 3,
                                   maxLength: 55,
+                                  enabled: !generatingId,
                                   decoration: InputDecoration(
                                       labelText: 'Private seed',
                                       suffixIcon: Row(
@@ -250,12 +255,14 @@ class _AddAccountState extends State<AddAccount> {
                                               MainAxisAlignment.end,
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            IconButton(
-                                                onPressed: () async {
-                                                  showQRScanner();
-                                                },
-                                                icon:
-                                                    const Icon(Icons.qr_code)),
+                                            isMobile
+                                                ? IconButton(
+                                                    onPressed: () async {
+                                                      showQRScanner();
+                                                    },
+                                                    icon: const Icon(
+                                                        Icons.qr_code))
+                                                : Container(),
                                             IconButton(
                                                 onPressed: () async {
                                                   if ((_formKey.currentState
@@ -272,6 +279,8 @@ class _AddAccountState extends State<AddAccount> {
                                                                   .currentState
                                                                   ?.instantValue[
                                                               "privateSeed"]));
+                                                  showSnackBar(
+                                                      "Copied to clipboard");
                                                 },
                                                 icon: const Icon(Icons.copy))
                                           ])),
@@ -409,7 +418,9 @@ class _AddAccountState extends State<AddAccount> {
 
   void saveIdHandler() async {
     _formKey.currentState?.validate();
-
+    if (generatingId) {
+      return;
+    }
     if (!_formKey.currentState!.isValid) {
       return;
     }
@@ -419,12 +430,8 @@ class _AddAccountState extends State<AddAccount> {
         .where(((element) =>
             element.publicId == generatedPublicId!.replaceAll(",", "_")))
         .isNotEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        elevation: 99,
-        duration: Duration(seconds: 3),
-        behavior: SnackBarBehavior.floating,
-        content: Text('This ID already exists in your wallet'),
-      ));
+      showSnackBar("This ID already exists in your wallet");
+
       return;
     }
     showDialog(

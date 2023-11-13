@@ -11,6 +11,8 @@ import 'package:qubic_wallet/di.dart';
 import 'package:qubic_wallet/extensions/asThousands.dart';
 import 'package:qubic_wallet/flutter_flow/theme_paddings.dart';
 import 'package:qubic_wallet/globals.dart';
+import 'package:qubic_wallet/helpers/platform_helpers.dart';
+import 'package:qubic_wallet/helpers/show_snackbar.dart';
 import 'package:qubic_wallet/pages/main/wallet_contents/explorer/explorer_search.dart';
 import 'package:qubic_wallet/resources/qubic_li.dart';
 import 'package:qubic_wallet/stores/application_store.dart';
@@ -65,9 +67,7 @@ class _TabExplorerState extends State<TabExplorer> {
         currentPage = 1;
       });
     }, onError: (e) {
-      SnackBar snackBar =
-          SnackBar(content: Text(e.toString().replaceAll("Exception: ", "")));
-      snackbarKey.currentState?.showSnackBar(snackBar);
+      showSnackBar(e.toString().replaceAll("Exception: ", ""));
       explorerStore.decreasePendingRequests();
     });
   }
@@ -395,6 +395,21 @@ class _TabExplorerState extends State<TabExplorer> {
                         EpochIndicator(),
                         ExplorerLoadingIndicator(),
                         Expanded(child: Container()),
+                        isDesktop
+                            ? Observer(builder: (context) {
+                                if (explorerStore.pendingRequests == 0) {
+                                  return IconButton(
+                                      icon: Icon(Icons.refresh,
+                                          color:
+                                              Theme.of(context).primaryColor),
+                                      onPressed: () {
+                                        refreshOverview();
+                                      });
+                                } else {
+                                  return Container();
+                                }
+                              })
+                            : Container(),
                         IconButton(
                           onPressed: () {
                             PersistentNavBarNavigator.pushNewScreen(

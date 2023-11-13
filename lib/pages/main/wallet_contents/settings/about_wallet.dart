@@ -9,6 +9,7 @@ import 'package:qubic_wallet/flutter_flow/theme_paddings.dart';
 import 'package:qubic_wallet/globals.dart';
 import 'package:qubic_wallet/helpers/re_auth_dialog.dart';
 import 'package:qubic_wallet/helpers/show_alert_dialog.dart';
+import 'package:qubic_wallet/helpers/show_snackbar.dart';
 import 'package:qubic_wallet/models/version_number.dart';
 import 'package:qubic_wallet/resources/secure_storage.dart';
 import 'package:qubic_wallet/services/qubic_hub_service.dart';
@@ -47,9 +48,7 @@ class _AboutWalletState extends State<AboutWallet> {
       setState(() {
         isLoading = false;
       });
-      SnackBar snackBar =
-          SnackBar(content: Text(e.toString().replaceAll("Exception: ", "")));
-      snackbarKey.currentState?.showSnackBar(snackBar);
+      showSnackBar(e.toString().replaceAll("Exception: ", ""));
     });
   }
 

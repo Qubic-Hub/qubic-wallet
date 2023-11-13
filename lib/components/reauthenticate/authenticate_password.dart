@@ -42,7 +42,10 @@ class _AuthenticatePasswordState extends State<AuthenticatePassword> {
       children.add(const VerticalDivider());
       children.add(biometricsButton());
     }
-    return Row(mainAxisAlignment: MainAxisAlignment.center, children: children);
+    return Padding(
+        padding: EdgeInsets.only(bottom: ThemePaddings.normalPadding),
+        child: Row(
+            mainAxisAlignment: MainAxisAlignment.center, children: children));
   }
 
   Widget biometricsButton() {

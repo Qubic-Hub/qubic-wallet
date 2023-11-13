@@ -1,5 +1,7 @@
 // ignore_for_file: non_constant_identifier_names
 
+import 'dart:convert';
+
 import 'package:dargon2_flutter/dargon2_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -11,6 +13,10 @@ class SecureStorageKeys {
   static const prepend = kReleaseMode
       ? "QW_"
       : "QW_DEBUG_"; // The prefix of all the keys in the secure storage
+
+  static const criticalSettings =
+      "${prepend}_CSETTINGS"; //The critical settings
+
   static const passwordHash =
       "${prepend}_PH"; // The hash of the password used to sign in the wallet
   static const walletSchemaVersion =
@@ -33,6 +39,40 @@ class PassAndSalt {
   late String password;
   late Salt salt;
   PassAndSalt({required this.password, required this.salt});
+}
+
+class CriticalSettings {
+  late String? storedPasswordHash;
+  late List<String> publicIds;
+  late List<String> privateSeeds;
+  late List<String> names;
+  CriticalSettings(
+      {required this.storedPasswordHash,
+      required this.publicIds,
+      required this.privateSeeds,
+      required this.names});
+
+  String toJSON() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['storedPasswordHash'] = storedPasswordHash;
+    data['publicIds'] = publicIds;
+    data['privateSeeds'] = privateSeeds;
+    data['names'] = names;
+    return json.encode(data);
+  }
+
+  factory CriticalSettings.fromJSON(String jsonString) {
+    final Map<String, dynamic> data = json.decode(jsonString);
+    final String storedPasswordHash = data['storedPasswordHash'];
+    final List<String> publicIds = List<String>.from(data['publicIds']);
+    final List<String> privateSeeds = List<String>.from(data['privateSeeds']);
+    final List<String> names = List<String>.from(data['names']);
+    return CriticalSettings(
+        storedPasswordHash: storedPasswordHash,
+        publicIds: publicIds,
+        privateSeeds: privateSeeds,
+        names: names);
+  }
 }
 
 /// A class that handles the secure storage of the wallet. The wallet is stored in the secure storage of the device
@@ -70,16 +110,26 @@ class SecureStorage {
     return result;
   }
 
+  Future<CriticalSettings> getCriticalSettings() async {
+    String? json = await storage.read(key: SecureStorageKeys.criticalSettings);
+    if (json == null) {
+      throw "Error while fetching critical settings";
+    }
+    try {
+      return CriticalSettings.fromJSON(json);
+    } catch (e) {
+      throw "Error while parsing critical settings";
+    }
+  }
+
   /// Signs a user in the wallet
   /// Returns true if the password is correct
   Future<bool> signInWallet(String password) async {
-    String? storedPasswordHash =
-        await storage.read(key: SecureStorageKeys.passwordHash);
-
+    CriticalSettings settings = await getCriticalSettings();
     if (password.isEmpty ||
         password.trim().isEmpty ||
-        storedPasswordHash == null ||
-        storedPasswordHash.trim().isEmpty) {
+        settings.storedPasswordHash == null ||
+        settings.storedPasswordHash!.trim().isEmpty) {
       return false;
     }
     return await compute((PassAndHash message) async {
@@ -92,35 +142,21 @@ class SecureStorage {
       } catch (e) {
         return false;
       }
-    }, PassAndHash(password: password, hash: storedPasswordHash));
+    }, PassAndHash(password: password, hash: settings.storedPasswordHash!));
   }
 
   //Makes sure that all the wallet keys are valid
   Future<bool> validateWalletContents() async {
-    String? storedPasswordHash =
-        await storage.read(key: SecureStorageKeys.passwordHash);
-    String? storedWalletSchemaVersion =
-        await storage.read(key: SecureStorageKeys.walletSchemaVersion);
-    String? storedNumberOfIDs =
-        await storage.read(key: SecureStorageKeys.numberOfIDs);
-    String? storedPrivateIDsList =
-        await storage.read(key: SecureStorageKeys.privateSeedsList);
-    String? storedPublicIDsList =
-        await storage.read(key: SecureStorageKeys.publicIdsList);
-    String? storedNamesList =
-        await storage.read(key: SecureStorageKeys.namesList);
-    String? settings = await storage.read(key: SecureStorageKeys.settings);
-
-    if (storedPasswordHash == null ||
-        storedWalletSchemaVersion == null ||
-        storedNumberOfIDs == null ||
-        storedPrivateIDsList == null ||
-        storedPublicIDsList == null ||
-        storedNamesList == null ||
-        settings == null) {
+    late CriticalSettings csettings;
+    try {
+      csettings = await getCriticalSettings();
+    } catch (e) {
       return false;
     }
-
+    String? settings = await storage.read(key: SecureStorageKeys.settings);
+    if (settings == null) {
+      return false;
+    }
     return true;
   }
 
@@ -130,8 +166,10 @@ class SecureStorage {
     }
     try {
       var result = await getPasswordHash(password);
+      CriticalSettings settings = await getCriticalSettings();
+      settings.storedPasswordHash = result.encodedString;
       await storage.write(
-          key: SecureStorageKeys.passwordHash, value: result.encodedString);
+          key: SecureStorageKeys.criticalSettings, value: settings.toJSON());
     } catch (e) {
       debugPrint(e.toString());
       return false;
@@ -146,14 +184,14 @@ class SecureStorage {
       return false;
     }
     var result = await getPasswordHash(password);
+    CriticalSettings csettings = CriticalSettings(
+        storedPasswordHash: result.encodedString,
+        publicIds: [],
+        privateSeeds: [],
+        names: []);
 
     await storage.write(
-        key: SecureStorageKeys.passwordHash, value: result.encodedString);
-    await storage.write(key: SecureStorageKeys.walletSchemaVersion, value: "1");
-    await storage.write(key: SecureStorageKeys.numberOfIDs, value: "0");
-    await storage.write(key: SecureStorageKeys.privateSeedsList, value: "");
-    await storage.write(key: SecureStorageKeys.publicIdsList, value: "");
-    await storage.write(key: SecureStorageKeys.namesList, value: "");
+        key: SecureStorageKeys.criticalSettings, value: csettings.toJSON());
     await storage.write(
         key: SecureStorageKeys.settings,
         value: Settings(TOTPKey: null, biometricEnabled: false).toJSON());
@@ -179,152 +217,67 @@ class SecureStorage {
   }
 
   Future<List<QubicListVm>> getWalletContents() async {
-    String storedPublicIDsList =
-        await storage.read(key: SecureStorageKeys.publicIdsList) ?? "";
-    String storedNamesList =
-        await storage.read(key: SecureStorageKeys.namesList) ?? "";
-
+    CriticalSettings settings = await getCriticalSettings();
     List<QubicListVm> list = [];
-
-//    List<String> privateSeeds = storedPrivateSeedsList != "" ? storedPrivateSeedsList.split(",") : [];
-    List<String> publicIds =
-        storedPublicIDsList != "" ? storedPublicIDsList.split(",") : [];
-    List<String> names =
-        storedNamesList != "" ? storedNamesList.split(",") : [];
-
-    for (int i = 0; i < publicIds.length; i++) {
-      list.add(QubicListVm(publicIds[i], names[i], null, null));
+    for (int i = 0; i < settings.publicIds.length; i++) {
+      list.add(
+          QubicListVm(settings.publicIds[i], settings.names[i], null, null));
     }
     return list;
   }
 
   Future<bool> deleteWallet() async {
     //Note The current implementation of flutter_secure_storage does not support readAll and deleteAll .
-    await storage.delete(key: SecureStorageKeys.privateSeedsList);
-    await storage.delete(key: SecureStorageKeys.passwordHash);
-    await storage.delete(key: SecureStorageKeys.walletSchemaVersion);
-    await storage.delete(key: SecureStorageKeys.numberOfIDs);
-    await storage.delete(key: SecureStorageKeys.publicIdsList);
-    await storage.delete(key: SecureStorageKeys.namesList);
+    await storage.delete(key: SecureStorageKeys.criticalSettings);
     await storage.delete(key: SecureStorageKeys.settings);
     return true;
   }
 
   // Adds a new Qubic ID to the secure storage
   Future<void> addID(QubicId qubicId) async {
-    String storedPrivateSeedsList =
-        await storage.read(key: SecureStorageKeys.privateSeedsList) ?? "";
-    String storedPublicIDsList =
-        await storage.read(key: SecureStorageKeys.publicIdsList) ?? "";
-    String storedNamesList =
-        await storage.read(key: SecureStorageKeys.namesList) ?? "";
+    CriticalSettings settings = await getCriticalSettings();
 
-    List<String> privateSeeds =
-        storedPrivateSeedsList != "" ? storedPrivateSeedsList.split(",") : [];
-    List<String> publicIds =
-        storedPublicIDsList != "" ? storedPublicIDsList.split(",") : [];
-    List<String> names =
-        storedNamesList != "" ? storedNamesList.split(",") : [];
-
-    privateSeeds.add(qubicId.getPrivateSeed());
-    publicIds.add(qubicId.getPublicId());
-    names.add(qubicId.getName());
-
+    settings.privateSeeds.add(qubicId.getPrivateSeed());
+    settings.publicIds.add(qubicId.getPublicId());
+    settings.names.add(qubicId.getName());
     await storage.write(
-        key: SecureStorageKeys.privateSeedsList, value: privateSeeds.join(","));
-    await storage.write(
-        key: SecureStorageKeys.publicIdsList, value: publicIds.join(","));
-    await storage.write(
-        key: SecureStorageKeys.namesList, value: names.join(","));
+        key: SecureStorageKeys.criticalSettings, value: settings.toJSON());
   }
 
   Future<void> renameId(String publicId, String name) async {
-    String storedPrivateSeedsList =
-        await storage.read(key: SecureStorageKeys.privateSeedsList) ?? "";
-    String storedPublicIDsList =
-        await storage.read(key: SecureStorageKeys.publicIdsList) ?? "";
-    String storedNamesList =
-        await storage.read(key: SecureStorageKeys.namesList) ?? "";
-    List<String> privateSeeds =
-        storedPrivateSeedsList != "" ? storedPrivateSeedsList.split(",") : [];
-    List<String> publicIds =
-        storedPublicIDsList != "" ? storedPublicIDsList.split(",") : [];
-    List<String> names =
-        storedNamesList != "" ? storedNamesList.split(",") : [];
-
-    int i = publicIds.indexOf(publicId);
+    CriticalSettings settings = await getCriticalSettings();
+    int i = settings.publicIds.indexOf(publicId);
     if (i == -1) return;
-    names[i] = name.replaceAll(",", "_");
+    settings.names[i] = name;
+
     await storage.write(
-        key: SecureStorageKeys.privateSeedsList, value: privateSeeds.join(","));
-    await storage.write(
-        key: SecureStorageKeys.publicIdsList, value: publicIds.join(","));
-    await storage.write(
-        key: SecureStorageKeys.namesList, value: names.join(","));
+        key: SecureStorageKeys.criticalSettings, value: settings.toJSON());
   }
 
   //Gets a Qubic ID from a public key
   Future<QubicId> getIdByPublicKey(String publicKey) async {
-    String storedPrivateSeedsList =
-        await storage.read(key: SecureStorageKeys.privateSeedsList) ?? "";
-    String storedPublicIDsList =
-        await storage.read(key: SecureStorageKeys.publicIdsList) ?? "";
-    String storedNamesList =
-        await storage.read(key: SecureStorageKeys.namesList) ?? "";
-
-    List<String> privateSeeds =
-        storedPrivateSeedsList != "" ? storedPrivateSeedsList.split(",") : [];
-    List<String> publicIds =
-        storedPublicIDsList != "" ? storedPublicIDsList.split(",") : [];
-    List<String> names =
-        storedNamesList != "" ? storedNamesList.split(",") : [];
-
-    int i = publicIds.indexOf(publicKey);
+    CriticalSettings settings = await getCriticalSettings();
+    int i = settings.publicIds.indexOf(publicKey);
     if (i == -1) {
       throw Exception("ID not found");
     }
-
-    return QubicId(privateSeeds[i], publicIds[i], names[i], null);
+    return QubicId(settings.privateSeeds[i], settings.publicIds[i],
+        settings.names[i], null);
   }
 
   //Removes a Qubic ID from the secure Storage (Based on its public key)
   Future<bool> removeID(String publicKey) async {
-    String storedPrivateSeedsList =
-        await storage.read(key: SecureStorageKeys.privateSeedsList) ?? "";
-    String storedPublicIDsList =
-        await storage.read(key: SecureStorageKeys.publicIdsList) ?? "";
-    String storedNamesList =
-        await storage.read(key: SecureStorageKeys.namesList) ?? "";
-
-    List<String> privateSeeds =
-        storedPrivateSeedsList != "" ? storedPrivateSeedsList.split(",") : [];
-    List<String> publicIds =
-        storedPublicIDsList != "" ? storedPublicIDsList.split(",") : [];
-    List<String> names =
-        storedNamesList != "" ? storedNamesList.split(",") : [];
-
-    int i = publicIds.indexOf(publicKey);
+    CriticalSettings settings = await getCriticalSettings();
+    int i = settings.publicIds.indexOf(publicKey);
     if (i == -1) {
       return false;
     }
 
-    privateSeeds.removeAt(i);
-    publicIds.removeAt(i);
-    names.removeAt(i);
-
-    if (privateSeeds.isEmpty) {
-      await storage.write(key: SecureStorageKeys.privateSeedsList, value: "");
-      await storage.write(key: SecureStorageKeys.publicIdsList, value: "");
-      await storage.write(key: SecureStorageKeys.namesList, value: "");
-      return true;
-    }
-
+    settings.privateSeeds.removeAt(i);
+    settings.publicIds.removeAt(i);
+    settings.names.removeAt(i);
     await storage.write(
-        key: SecureStorageKeys.privateSeedsList, value: privateSeeds.join(","));
-    await storage.write(
-        key: SecureStorageKeys.publicIdsList, value: publicIds.join(","));
-    await storage.write(
-        key: SecureStorageKeys.namesList, value: names.join(","));
+        key: SecureStorageKeys.criticalSettings, value: settings.toJSON());
     return true;
   }
 }

@@ -14,6 +14,9 @@ abstract class _SettingsStore with Store {
   late final SecureStorage secureStorage = getIt<SecureStorage>();
 
   @observable
+  bool cmdUtilsAvailable = false;
+
+  @observable
   Settings settings = Settings();
 
   @action

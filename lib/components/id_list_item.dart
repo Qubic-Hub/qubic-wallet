@@ -187,9 +187,10 @@ class IdListItem extends StatelessWidget {
                 value: CardItem.viewTransactions,
                 child: Text('View transactions'),
               ),
-              const PopupMenuItem<CardItem>(
+              PopupMenuItem<CardItem>(
                 value: CardItem.viewInExplorer,
                 child: Text('View in explorer'),
+                enabled: item.amount != null && item.amount! > 0,
               ),
               const PopupMenuItem<CardItem>(
                 value: CardItem.reveal,
@@ -323,10 +324,15 @@ class IdListItem extends StatelessWidget {
                                   .textTheme
                                   .titleMedium!
                                   .copyWith(fontFamily: ThemeFonts.secondary))),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [getButtonBar(context), getCardMenu(context)],
-                      )
+                      item.amount != null
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                getButtonBar(context),
+                                getCardMenu(context)
+                              ],
+                            )
+                          : Container()
                     ]))));
   }
 }

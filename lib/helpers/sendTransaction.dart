@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:qubic_wallet/di.dart';
 import 'package:qubic_wallet/helpers/show_alert_dialog.dart';
+import 'package:qubic_wallet/resources/qubic_cmd.dart';
 import 'package:qubic_wallet/resources/qubic_js.dart';
 import 'package:qubic_wallet/resources/qubic_li.dart';
 import 'package:qubic_wallet/stores/application_store.dart';
@@ -9,13 +10,12 @@ Future<bool> sendTransactionDialog(BuildContext context, String sourceId,
     String destinationId, int value, int destinationTick) async {
   String seed = await getIt.get<ApplicationStore>().getSeedByPublicId(sourceId);
   late String transactionKey;
-  late QubicJs qubicJs = getIt.get<QubicJs>();
+  late QubicCmd qubicCmd = QubicCmd();
   try {
-    await qubicJs.initialize();
+    await qubicCmd.initialize();
     //Get the signed transaction
-    transactionKey = await getIt
-        .get<QubicJs>()
-        .createTransaction(seed, destinationId, value, destinationTick);
+    transactionKey = await qubicCmd.createTransaction(
+        seed, destinationId, value, destinationTick);
   } catch (e) {
     if (e.toString().startsWith("Exception: CRITICAL:")) {
       showAlertDialog(context, "TAMPERED WALLET DETECTED",

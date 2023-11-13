@@ -45,25 +45,28 @@ class _AddAccountWarningState extends State<AddAccountWarning> {
               Padding(
                   padding:
                       const EdgeInsets.only(top: ThemePaddings.normalPadding),
-                  child: Column(children: [
-                    Text("- Keep a safe backup of your private seed",
-                        style: Theme.of(context)
-                            .textTheme
-                            .displaySmall!
-                            .copyWith(fontFamily: ThemeFonts.primary)),
-                    Text("- Never share your private seed with anyone",
-                        style: Theme.of(context)
-                            .textTheme
-                            .displaySmall!
-                            .copyWith(fontFamily: ThemeFonts.primary)),
-                    const SizedBox(height: ThemePaddings.normalPadding),
-                    Text("- DO NOT paste it to unknown apps or websites",
-                        style: Theme.of(context)
-                            .textTheme
-                            .displaySmall!
-                            .copyWith(fontFamily: ThemeFonts.primary)),
-                    const SizedBox(height: ThemePaddings.normalPadding),
-                  ])),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("- Keep a safe backup of your private seed",
+                            style: Theme.of(context)
+                                .textTheme
+                                .displaySmall!
+                                .copyWith(fontFamily: ThemeFonts.primary)),
+                        const SizedBox(height: ThemePaddings.normalPadding),
+                        Text("- Never share your private seed with anyone",
+                            style: Theme.of(context)
+                                .textTheme
+                                .displaySmall!
+                                .copyWith(fontFamily: ThemeFonts.primary)),
+                        const SizedBox(height: ThemePaddings.normalPadding),
+                        Text("- DO NOT paste it to unknown apps or websites",
+                            style: Theme.of(context)
+                                .textTheme
+                                .displaySmall!
+                                .copyWith(fontFamily: ThemeFonts.primary)),
+                        const SizedBox(height: ThemePaddings.normalPadding),
+                      ])),
               const SizedBox(height: ThemePaddings.normalPadding),
             ],
           )))
@@ -72,14 +75,16 @@ class _AddAccountWarningState extends State<AddAccountWarning> {
 
   List<Widget> getButtons() {
     return [
-      FilledButton(
-          onPressed: transferNowHandler,
-          child: const SizedBox(
-              width: 280,
-              child: Padding(
-                  padding: EdgeInsets.all(ThemePaddings.normalPadding),
-                  child: Text("I HAVE BACKED UP MY SEED",
-                      textAlign: TextAlign.center))))
+      Padding(
+          padding: EdgeInsets.only(bottom: ThemePaddings.normalPadding),
+          child: FilledButton(
+              onPressed: transferNowHandler,
+              child: const SizedBox(
+                  width: 280,
+                  child: Padding(
+                      padding: EdgeInsets.all(ThemePaddings.normalPadding),
+                      child: Text("I HAVE BACKED UP MY SEED",
+                          textAlign: TextAlign.center)))))
     ];
   }
 

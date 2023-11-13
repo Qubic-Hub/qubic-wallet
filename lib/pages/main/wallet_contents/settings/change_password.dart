@@ -6,6 +6,7 @@ import 'package:qubic_wallet/flutter_flow/theme_paddings.dart';
 import 'package:qubic_wallet/globals.dart';
 import 'package:qubic_wallet/helpers/re_auth_dialog.dart';
 import 'package:qubic_wallet/helpers/show_alert_dialog.dart';
+import 'package:qubic_wallet/helpers/show_snackbar.dart';
 import 'package:qubic_wallet/resources/secure_storage.dart';
 import 'package:qubic_wallet/stores/application_store.dart';
 import 'package:qubic_wallet/stores/settings_store.dart';
@@ -129,12 +130,7 @@ class _ChangePasswordState extends State<ChangePassword> {
           isLoading = false;
         });
 
-        snackbarKey.currentState?.showSnackBar(const SnackBar(
-          elevation: 99,
-          duration: Duration(seconds: 3),
-          behavior: SnackBarBehavior.floating,
-          content: Text("Password changed successfully"),
-        ));
+        showSnackBar("Password changed successfully");
       } else {
         showAlertDialog(context, "Error", "Failed to save new password");
         setState(() {

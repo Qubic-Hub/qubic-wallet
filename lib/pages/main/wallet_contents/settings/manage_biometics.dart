@@ -126,13 +126,16 @@ class _ManageBiometricsState extends State<ManageBiometrics> {
     String? errorText;
     String? errorDescription;
     if (canCheckBiometrics == false) {
-      errorText = "Your device does not support biometric authentication";
-      errorDescription = "";
+      errorText = "Biometric authentication not available";
+      errorDescription =
+          "Your device does not support biometric authentication";
     }
     if (availableBiometrics == null) {
-      return Container();
+      errorText = "Biometric authentication not available";
+      errorDescription =
+          "Your device does not support biometric authentication";
     }
-    if (availableBiometrics!.isEmpty) {
+    if (availableBiometrics != null && availableBiometrics!.isEmpty) {
       errorText = "No biometric data has been registered in the device.";
       errorDescription =
           "Your device supports biometric authentication but you have not registered your biometric data yet. Please navigate to your device control panel, register your biometric data and try again";
@@ -153,20 +156,23 @@ class _ManageBiometricsState extends State<ManageBiometrics> {
                 .withOpacity(0.3)),
       ]),
       const SizedBox(height: ThemePaddings.smallPadding),
-      Text(errorText,
-          textAlign: TextAlign.center,
-          style: Theme.of(context)
-              .textTheme
-              .displaySmall!
-              .copyWith(fontFamily: ThemeFonts.primary)),
-      errorDescription != null
-          ? Text(errorDescription,
-              textAlign: TextAlign.justify,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall!
-                  .copyWith(fontFamily: ThemeFonts.secondary))
-          : Container()
+      Column(children: [
+        Divider(),
+        Text(errorText,
+            textAlign: TextAlign.center,
+            style: Theme.of(context)
+                .textTheme
+                .displaySmall!
+                .copyWith(fontFamily: ThemeFonts.primary)),
+        errorDescription != null
+            ? Text(errorDescription,
+                textAlign: TextAlign.justify,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodySmall!
+                    .copyWith(fontFamily: ThemeFonts.secondary))
+            : Container()
+      ])
     ]);
   }
 
