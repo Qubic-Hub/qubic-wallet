@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:qubic_wallet/config.dart';
 import 'package:qubic_wallet/di.dart';
 import 'package:qubic_wallet/globals.dart';
+import 'package:qubic_wallet/helpers/show_snackbar.dart';
 import 'package:qubic_wallet/resources/qubic_li.dart';
 import 'package:qubic_wallet/stores/application_store.dart';
 
@@ -51,9 +52,7 @@ class TimedController {
       // final contents = await _apiService.getContents();
       // currentQubicIDs = ObservableSet.of(contents);
     } on Exception catch (e) {
-      SnackBar snackBar =
-          SnackBar(content: Text(e.toString().replaceAll("Exception: ", "")));
-      snackbarKey.currentState?.showSnackBar(snackBar);
+      showSnackBar(e.toString().replaceAll("Exception: ", ""));
     }
   }
 

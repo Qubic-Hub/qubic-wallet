@@ -5,8 +5,10 @@ import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:qubic_wallet/components/cumulative_wallet_value.dart';
 import 'package:qubic_wallet/components/id_list_item.dart';
 import 'package:qubic_wallet/components/tick_indicator.dart';
+import 'package:qubic_wallet/components/tick_refresh.dart';
 import 'package:qubic_wallet/di.dart';
 import 'package:qubic_wallet/flutter_flow/theme_paddings.dart';
+import 'package:qubic_wallet/helpers/platform_helpers.dart';
 import 'package:qubic_wallet/pages/main/wallet_contents/add_account.dart';
 import 'package:qubic_wallet/stores/application_store.dart';
 import 'package:qubic_wallet/timed_controller.dart';
@@ -38,6 +40,8 @@ class _TabWalletContentsState extends State<TabWalletContents> {
 
   List<Widget> getAccountCards() {
     List<Widget> cards = [];
+
+    cards.add(Container());
 
     if (appStore.currentQubicIDs.length > 1) {
       cards.add(CumulativeWalletValue());
@@ -111,24 +115,27 @@ class _TabWalletContentsState extends State<TabWalletContents> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         TickIndicator(),
-                        IconButton(
-                          onPressed: () {
-                            PersistentNavBarNavigator.pushNewScreen(
-                              context,
-                              screen: const AddAccount(),
-                              withNavBar:
-                                  false, // OPTIONAL VALUE. True by default.
-                              pageTransitionAnimation:
-                                  PageTransitionAnimation.cupertino,
-                            );
-                          },
-                          iconSize: Theme.of(context)
-                              .textTheme
-                              .headlineLarge
-                              ?.fontSize,
-                          icon: const Icon(Icons.add_box),
-                          color: Theme.of(context).primaryColor,
-                        ),
+                        Row(children: [
+                          TickRefresh(),
+                          IconButton(
+                            onPressed: () {
+                              PersistentNavBarNavigator.pushNewScreen(
+                                context,
+                                screen: const AddAccount(),
+                                withNavBar:
+                                    false, // OPTIONAL VALUE. True by default.
+                                pageTransitionAnimation:
+                                    PageTransitionAnimation.cupertino,
+                              );
+                            },
+                            iconSize: Theme.of(context)
+                                .textTheme
+                                .headlineLarge
+                                ?.fontSize,
+                            icon: const Icon(Icons.add_box),
+                            color: Theme.of(context).primaryColor,
+                          )
+                        ]),
                       ],
                     )))
           ],

@@ -10,6 +10,8 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:qubic_wallet/di.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:qubic_wallet/globals.dart';
+import 'package:qubic_wallet/helpers/platform_helpers.dart';
+import 'package:qubic_wallet/platform_specific_initialization.dart';
 import 'package:qubic_wallet/resources/qubic_js.dart';
 import 'package:qubic_wallet/routes.dart';
 import 'package:qubic_wallet/stores/qubic_hub_store.dart';
@@ -22,30 +24,15 @@ Future<void> main() async {
   setupDI(); //Dependency injection
 
   WidgetsFlutterBinding.ensureInitialized();
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-  ]);
 
-  if (defaultTargetPlatform == TargetPlatform.android) {
-    await InAppWebViewController.setWebContentsDebuggingEnabled(true);
-  }
-  //getIt.get<QubicJs>().initialize();
+  await PlatformSpecificInitilization().run();
+
   getIt.get<SettingsStore>().loadSettings();
-
   PackageInfo packageInfo = await PackageInfo.fromPlatform();
   getIt.get<QubicHubStore>().setVersion(packageInfo.version);
   getIt.get<QubicHubStore>().setBuildNumer(packageInfo.buildNumber);
-  getIt.get<QubicJs>().initialize();
-  runApp(const WalletApp());
 
-  //Stop Google ML from calling home
-  if (UniversalPlatform.isAndroid) {
-    final dir = await getApplicationDocumentsDirectory();
-    final path = dir.parent.path;
-    final file =
-        File('$path/databases/com.google.android.datatransport.events');
-    await file.writeAsString('Fake');
-  }
+  runApp(const WalletApp());
 }
 
 class WalletApp extends StatelessWidget {

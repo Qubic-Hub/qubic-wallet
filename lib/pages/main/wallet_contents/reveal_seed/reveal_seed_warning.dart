@@ -48,25 +48,29 @@ class _RevealSeedWarningState extends State<RevealSeedWarning> {
               Padding(
                   padding:
                       const EdgeInsets.only(top: ThemePaddings.normalPadding),
-                  child: Column(children: [
-                    Text("- Never share your private seed with anyone",
-                        style: Theme.of(context)
-                            .textTheme
-                            .displaySmall!
-                            .copyWith(fontFamily: ThemeFonts.primary)),
-                    const SizedBox(height: ThemePaddings.normalPadding),
-                    Text("- DO NOT paste it to unknown apps or websites",
-                        style: Theme.of(context)
-                            .textTheme
-                            .displaySmall!
-                            .copyWith(fontFamily: ThemeFonts.primary)),
-                    const SizedBox(height: ThemePaddings.normalPadding),
-                    Text("- This may result in loss of your funds and assets",
-                        style: Theme.of(context)
-                            .textTheme
-                            .displaySmall!
-                            .copyWith(fontFamily: ThemeFonts.primary))
-                  ])),
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("- Never share your private seed with anyone",
+                            style: Theme.of(context)
+                                .textTheme
+                                .displaySmall!
+                                .copyWith(fontFamily: ThemeFonts.primary)),
+                        const SizedBox(height: ThemePaddings.normalPadding),
+                        Text("- DO NOT paste it to unknown apps or websites",
+                            style: Theme.of(context)
+                                .textTheme
+                                .displaySmall!
+                                .copyWith(fontFamily: ThemeFonts.primary)),
+                        const SizedBox(height: ThemePaddings.normalPadding),
+                        Text(
+                            "- This may result in loss of your funds and assets",
+                            style: Theme.of(context)
+                                .textTheme
+                                .displaySmall!
+                                .copyWith(fontFamily: ThemeFonts.primary))
+                      ])),
               const SizedBox(height: ThemePaddings.normalPadding),
             ],
           )))
@@ -75,14 +79,16 @@ class _RevealSeedWarningState extends State<RevealSeedWarning> {
 
   List<Widget> getButtons() {
     return [
-      FilledButton(
-          onPressed: transferNowHandler,
-          child: const SizedBox(
-              width: 220,
-              child: Padding(
-                  padding: EdgeInsets.all(ThemePaddings.normalPadding),
-                  child:
-                      Text("SHOW PRIVATE SEED", textAlign: TextAlign.center))))
+      Padding(
+          padding: EdgeInsets.only(bottom: ThemePaddings.normalPadding),
+          child: FilledButton(
+              onPressed: transferNowHandler,
+              child: const SizedBox(
+                  width: 220,
+                  child: Padding(
+                      padding: EdgeInsets.all(ThemePaddings.normalPadding),
+                      child: Text("SHOW PRIVATE SEED",
+                          textAlign: TextAlign.center)))))
     ];
   }
 

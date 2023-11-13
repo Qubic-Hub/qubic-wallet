@@ -100,7 +100,7 @@ class QubicLi {
       _refreshToken = loginDto.refreshToken;
     } else {
       throw Exception(
-          'Failed to authenticate. Got status response \$(response.statusCode)');
+          'Failed to authenticate. Got status response ${response.statusCode}');
     }
   }
 

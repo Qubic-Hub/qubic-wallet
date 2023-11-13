@@ -25,15 +25,16 @@ This is a fully functional wallet for the Qubic project (https://discord.com/inv
 # Supported Platforms
 
 - [x] Android
-- [ ] iOS - coming soon
-- [ ] Windows - coming soon
-- [ ] MacOS - coming soon
+- [x] Windows - ~~coming soon~~
 - [ ] Linux - coming soon
+- [ ] iOS - coming soon
+- [ ] MacOS - coming soon
 - [ ] Web - coming soon
 
 ## Distribution
 
 - [x] Android: Signed APK
+- [x] Windows: Executable
 - [ ] Android: App stores - coming soon
 
 # Security
@@ -43,6 +44,7 @@ All stored data is encrypted via (https://pub.dev/packages/flutter_secure_storag
 - Android : Use of EncryptedSharedPreferences
 - iOS: KeyChain
 - MacOS: KeyChain
+- Windows: Windows Credentials Manager
 
 ## Cryptographic operations
 
@@ -51,7 +53,7 @@ which features the Web Crypto API and use Javascript libs for the cryptographic 
 
 ## Backend
 
-Your keys are never shared to any 3rd party. Yet the wallet uses some backend services
+Your keys are never shared to any 3rd party. Yet the wallet uses some backend services:
 
 ### Access to Qubic Network
 

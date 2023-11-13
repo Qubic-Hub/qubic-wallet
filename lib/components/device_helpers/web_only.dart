@@ -1,0 +1,12 @@
+import 'package:flutter/material.dart';
+import 'package:universal_platform/universal_platform.dart';
+
+class OnlyWeb extends StatelessWidget {
+  final Widget child;
+  const OnlyWeb({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return UniversalPlatform.isWeb ? child : Container();
+  }
+}

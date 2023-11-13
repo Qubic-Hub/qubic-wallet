@@ -11,8 +11,10 @@ import 'package:qubic_wallet/extensions/asThousands.dart';
 import 'package:qubic_wallet/flutter_flow/theme_paddings.dart';
 import 'package:qubic_wallet/globals.dart';
 import 'package:qubic_wallet/helpers/id_validators.dart';
+import 'package:qubic_wallet/helpers/platform_helpers.dart';
 import 'package:qubic_wallet/helpers/re_auth_dialog.dart';
 import 'package:qubic_wallet/helpers/sendTransaction.dart';
+import 'package:qubic_wallet/helpers/show_snackbar.dart';
 import 'package:qubic_wallet/models/qubic_list_vm.dart';
 import 'package:qubic_wallet/stores/application_store.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -149,13 +151,7 @@ class _SendState extends State<Send> {
 
                   if (foundSuccess) {
                     Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      elevation: 99,
-                      duration: const Duration(seconds: 3),
-                      behavior: SnackBarBehavior.floating,
-                      content: Text(
-                          '${destinationID.text}: Successfully scanned QR Code'),
-                    ));
+                    showSnackBar("Successfully scanned QR Code");
                   }
                 }
               },
@@ -418,11 +414,14 @@ class _SendState extends State<Send> {
                                                     icon:
                                                         const Icon(Icons.book))
                                                 : Container(),
-                                            IconButton(
-                                                onPressed: () async {
-                                                  showQRScanner();
-                                                },
-                                                icon: const Icon(Icons.qr_code))
+                                            isMobile
+                                                ? IconButton(
+                                                    onPressed: () async {
+                                                      showQRScanner();
+                                                    },
+                                                    icon: const Icon(
+                                                        Icons.qr_code))
+                                                : Container()
                                           ])),
                                   autocorrect: false,
                                   autofillHints: null,
@@ -626,12 +625,7 @@ class _SendState extends State<Send> {
     Navigator.pop(context);
     //Timer(const Duration(seconds: 1), () => Navigator.pop(context));
 
-    snackbarKey.currentState?.showSnackBar(const SnackBar(
-      elevation: 99,
-      duration: Duration(seconds: 3),
-      behavior: SnackBarBehavior.floating,
-      content: Text("Submitted new transaction to Qubic network"),
-    ));
+    showSnackBar("Submitted new transaction to Qubic network");
 
     setState(() {
       isLoading = false;

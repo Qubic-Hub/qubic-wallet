@@ -70,11 +70,17 @@ class ExplorerResultPageTickHeader extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      tickInfo.isNonEmpty
-                          ? const Icon(Icons.check, color: Colors.green)
-                          : const Icon(Icons.error, color: Colors.red),
+                      tickInfo.completed
+                          ? tickInfo.isNonEmpty
+                              ? const Icon(Icons.check, color: Colors.green)
+                              : const Icon(Icons.error, color: Colors.red)
+                          : const Icon(Icons.question_mark, color: Colors.grey),
                       Text(
-                        tickInfo.isNonEmpty ? " Non Empty" : " Empty",
+                        tickInfo.completed
+                            ? tickInfo.isNonEmpty
+                                ? " Non Empty"
+                                : " Empty"
+                            : " Not yet known",
                         style: panelHeaderValue,
                       )
                     ]),

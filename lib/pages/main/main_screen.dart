@@ -2,13 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:qubic_wallet/di.dart';
 import 'package:qubic_wallet/flutter_flow/theme_paddings.dart';
+import 'package:qubic_wallet/models/settings.dart';
+import 'package:qubic_wallet/pages/main/downloadCmdUtils.dart';
 import 'package:qubic_wallet/pages/main/tab_explorer.dart';
 import 'package:qubic_wallet/pages/main/tab_settings.dart';
 import 'package:qubic_wallet/pages/main/tab_transfers.dart';
 import 'package:qubic_wallet/pages/main/tab_wallet_contents.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+import 'package:qubic_wallet/resources/qubic_cmd_utils.dart';
 import 'package:qubic_wallet/stores/qubic_hub_store.dart';
+import 'package:qubic_wallet/stores/settings_store.dart';
 import 'package:qubic_wallet/timed_controller.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -22,11 +27,17 @@ class _MainScreenState extends State<MainScreen> {
   final _controller = PersistentTabController(initialIndex: 0);
   final _timedController = getIt<TimedController>();
   final QubicHubStore qubicHubStore = getIt<QubicHubStore>();
+  final SettingsStore settingsStore = getIt<SettingsStore>();
 
   @override
   void initState() {
     super.initState();
     _timedController.setupFetchTimer(true);
+
+    if (UniversalPlatform.isDesktop) {
+      //We need to check that the qubic-helper is installed
+      //If not, we need to download it
+    }
   }
 
   List<Widget> _buildScreens() {
@@ -72,8 +83,7 @@ class _MainScreenState extends State<MainScreen> {
     ];
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget getMain() {
     return SafeArea(
         child: Column(children: [
       Observer(builder: (context) {
@@ -85,7 +95,7 @@ class _MainScreenState extends State<MainScreen> {
                 TextButton(
                     onPressed: () {},
                     child: const Text(
-                        "This is an outdated version. Please update ASAP"))
+                        "This is an outdated version. Please update"))
               ]));
         }
         return Container();
@@ -158,5 +168,15 @@ class _MainScreenState extends State<MainScreen> {
             NavBarStyle.style11, // Choose the nav bar style with this property.
       ))
     ]));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Observer(builder: (context) {
+      if (UniversalPlatform.isDesktop && !settingsStore.cmdUtilsAvailable) {
+        return DownloadCmdUtils();
+      }
+      return getMain();
+    });
   }
 }
