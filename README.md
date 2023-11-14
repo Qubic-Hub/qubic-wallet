@@ -71,6 +71,11 @@ Soon there will be a dedicated compilation manual page. Until then here's some b
 
 - Run : `flutter build apk --split-per-abi` for Android and run the .apk file on your device.
 
+## Windows
+
+- Run : `flutter build windows` to build the windows version. Run it in your windows
+- Please note that running the windows version requires the VC++ Redistributables which can be found here(https://www.microsoft.com/en-gb/download/details.aspx?id=48145)
+
 # Contribution - Bug reports
 
 Feel free to contribute to the project. Just create an MR. Tests are being written and will be added to the repo. Until then, checking is manual.

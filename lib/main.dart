@@ -1,23 +1,16 @@
-import 'dart:io';
-
 import 'package:dargon2_flutter/dargon2_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:qubic_wallet/di.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:qubic_wallet/globals.dart';
-import 'package:qubic_wallet/helpers/platform_helpers.dart';
 import 'package:qubic_wallet/platform_specific_initialization.dart';
-import 'package:qubic_wallet/resources/qubic_js.dart';
 import 'package:qubic_wallet/routes.dart';
 import 'package:qubic_wallet/stores/qubic_hub_store.dart';
 import 'package:qubic_wallet/stores/settings_store.dart';
-import 'package:universal_platform/universal_platform.dart';
-import 'package:path_provider/path_provider.dart';
 
 Future<void> main() async {
   DArgon2Flutter.init(); //Initialize DArgon 2
