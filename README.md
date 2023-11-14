@@ -48,8 +48,16 @@ All stored data is encrypted via (https://pub.dev/packages/flutter_secure_storag
 
 ## Cryptographic operations
 
+### Mobile version
 Open source Dart cryptographic libraries for required algorithms state that are not audited / production ready. For this, we are using an embedded web browser
 which features the Web Crypto API and use Javascript libs for the cryptographic operations. This is transparent to the end user. Javascript libs are extracted by qubic.li wallet and added as an asset.
+
+### Desktop version
+In order to not have to embed a javascript runtime inside the application, for desktop apps, we have compiled the Javascript libs to standalone executables using pkg. You can find them here: https://github.com/Qubic-Hub/qubic-helper-utils 
+Desktop versions try to locate the appropriate executable and if it's missing it automatically downloads it (or allows the user to manually download it).
+
+### Anti-tampering
+Both mobile and desktop version check the Hashes of the assets / executables before using them, in order to prevent tampering.
 
 ## Backend
 
