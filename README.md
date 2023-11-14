@@ -1,6 +1,6 @@
 # Qubic Wallet
 
-This is a fully functional wallet for the Qubic project (https://discord.com/invite/2vDMR8m). It is developed using flutter and compiles successfully for Android. There are some issues with Windows and MacOS builds which will soon be ironed out
+This is a fully functional wallet for the Qubic project (https://discord.com/invite/2vDMR8m). It is developed using flutter and runs in Android and Microsoft Windows.
 
 ## Functionality
 
