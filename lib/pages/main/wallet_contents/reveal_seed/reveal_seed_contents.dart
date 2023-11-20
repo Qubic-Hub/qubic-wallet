@@ -63,14 +63,16 @@ class _RevealSeedContentsState extends State<RevealSeedContents> {
                       child: Column(
                         children: [
                           const SizedBox(height: ThemePaddings.miniPadding),
-                          Text(
-                              "DO NOT SHARE WITH OTHERS OR PASTE IN UNKNOWN APPS OR WEBSITES",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium!
-                                  .copyWith(
-                                      color:
-                                          Theme.of(context).colorScheme.error)),
+                          Center(
+                              child: Text(
+                                  "DO NOT SHARE WITH OTHERS OR PASTE IN UNKNOWN APPS OR WEBSITES",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium!
+                                      .copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .error))),
                           const SizedBox(height: ThemePaddings.miniPadding),
                           Builder(builder: (context) {
                             return Container(

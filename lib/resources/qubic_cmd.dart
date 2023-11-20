@@ -8,7 +8,7 @@ class QubicCmd {
 
   Future<void> _initQubicJS() async {
     qubicJs = QubicJs();
-    qubicJs.initialize();
+    await qubicJs.initialize();
   }
 
   void _disploseQubicJS() {

@@ -21,21 +21,22 @@ class Settings {
   @observable
   String? TOTPKey;
 
-  Settings({
-    this.biometricEnabled = false,
-    this.TOTPKey,
-  });
+  String? padding;
+
+  Settings({this.biometricEnabled = false, this.TOTPKey, this.padding});
 
   factory Settings.clone(Settings original) {
     return Settings(
       biometricEnabled: original.biometricEnabled,
       TOTPKey: original.TOTPKey,
+      padding: original.padding,
     );
   }
 
   String toJSON() {
     Map<String, dynamic> json = {
       'biometricEnabled': biometricEnabled,
+      'padding': padding,
       'TOTPKey': TOTPKey,
     };
     return jsonEncode(json);
@@ -45,6 +46,7 @@ class Settings {
     Map<String, dynamic> json = jsonDecode(jsonString);
     return Settings(
       biometricEnabled: json['biometricEnabled'],
+      padding: json['padding'] ?? null,
       TOTPKey: json['TOTPKey'],
     );
   }

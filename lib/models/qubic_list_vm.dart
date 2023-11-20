@@ -1,6 +1,12 @@
 import 'dart:core';
-
 import 'package:mobx/mobx.dart';
+
+class ShareVm {
+  late int amount;
+  late int tick;
+
+  ShareVm(this.amount, this.tick);
+}
 
 @observable
 class QubicListVm {
@@ -12,10 +18,16 @@ class QubicListVm {
   late int? amount; //The amount of the ID
 
   @observable
-  Map<String, int> shares = {};
+  late int? amountTick; //The tick when amount was valid for
 
-  QubicListVm(
-      String publicId, String name, this.amount, Map<String, int>? shares) {
+  @observable
+  Map<String, ShareVm> shares = {};
+
+  @observable
+  late bool? hasPendingTransaction;
+
+  QubicListVm(String publicId, String name, this.amount, this.amountTick,
+      Map<String, ShareVm>? shares) {
     _publicId = publicId.replaceAll(",", "_");
     _name = name.replaceAll(",", "_");
     this.shares.clear();
@@ -45,19 +57,36 @@ class QubicListVm {
   }
 
   /// Sets the number of shares (without mutation)
-  void setShare(String assetName, int numberOfShares) {
-    Map<String, int> newShares = {};
+  void setShare(String assetName, int numberOfShares, int tick) {
+    Map<String, ShareVm> newShares = {};
     newShares.addAll(shares);
-    newShares[assetName] = numberOfShares;
+
+    if (((newShares.containsKey(assetName)) &&
+            (tick > newShares[assetName]!.tick)) ||
+        (newShares.containsKey(assetName) == false)) {
+      newShares[assetName] = ShareVm(numberOfShares, tick);
+    }
     shares = newShares;
   }
 
-  Map<String, int> getShares() {
+  Map<String, ShareVm> getShares() {
     return shares;
   }
 
+  Map<String, ShareVm> getClonedShares() {
+    Map<String, ShareVm> newShares = {};
+    shares.forEach((key, value) {
+      newShares[key] = ShareVm(value.amount, value.tick);
+    });
+    return newShares;
+  }
+
   factory QubicListVm.clone(QubicListVm original) {
-    return QubicListVm(original.publicId, original.name, original.amount,
-        Map<String, int>.from(original.getShares()));
+    return QubicListVm(
+        original.publicId,
+        original.name,
+        original.amount,
+        original.amountTick,
+        Map<String, ShareVm>.from(original.getClonedShares()));
   }
 }

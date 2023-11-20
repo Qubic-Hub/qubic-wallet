@@ -10,6 +10,7 @@ abstract class Config {
   static const URL_Tick = "Public/CurrentTick";
   static const URL_Balance = "Wallet/CurrentBalance";
   static const URL_NetworkBalances = "Wallet/NetworkBalances";
+  static const URL_NetworkTransactions = "Wallet/Transactions";
   static const URL_Assets = "Wallet/Assets";
   static const URL_Transaction = "Public/SubmitTransaction";
   static const URL_TickOverview = "Network/TickOverview";

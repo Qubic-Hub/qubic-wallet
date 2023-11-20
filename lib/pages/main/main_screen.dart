@@ -34,10 +34,7 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     _timedController.setupFetchTimer(true);
 
-    if (UniversalPlatform.isDesktop) {
-      //We need to check that the qubic-helper is installed
-      //If not, we need to download it
-    }
+    getIt.registerSingleton<PersistentTabController>(_controller);
   }
 
   List<Widget> _buildScreens() {

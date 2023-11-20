@@ -5,7 +5,9 @@ import 'package:qubic_wallet/stores/application_store.dart';
 
 class AddAccountWarning extends StatefulWidget {
   final Function() onAccept;
-  const AddAccountWarning({super.key, required this.onAccept});
+  final Function() onReject;
+  const AddAccountWarning(
+      {super.key, required this.onAccept, required this.onReject});
 
   @override
   _AddAccountWarningState createState() => _AddAccountWarningState();
@@ -77,14 +79,25 @@ class _AddAccountWarningState extends State<AddAccountWarning> {
     return [
       Padding(
           padding: EdgeInsets.only(bottom: ThemePaddings.normalPadding),
+          child: TextButton(
+              onPressed: widget.onReject,
+              child: const SizedBox(
+                  child: Padding(
+                      padding: EdgeInsets.fromLTRB(
+                          ThemePaddings.normalPadding,
+                          ThemePaddings.smallPadding,
+                          ThemePaddings.normalPadding,
+                          ThemePaddings.smallPadding),
+                      child:
+                          Text("Take me back", textAlign: TextAlign.center))))),
+      Padding(
+          padding: EdgeInsets.only(bottom: ThemePaddings.normalPadding),
           child: FilledButton(
               onPressed: transferNowHandler,
               child: const SizedBox(
-                  width: 280,
                   child: Padding(
                       padding: EdgeInsets.all(ThemePaddings.normalPadding),
-                      child: Text("I HAVE BACKED UP MY SEED",
-                          textAlign: TextAlign.center)))))
+                      child: Text("Proceed", textAlign: TextAlign.center))))),
     ];
   }
 
@@ -108,7 +121,7 @@ class _AddAccountWarningState extends State<AddAccountWarning> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Divider(),
-            Row(children: [
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               Checkbox(
                   value: hasAccepted,
                   onChanged: (value) {
@@ -120,7 +133,8 @@ class _AddAccountWarningState extends State<AddAccountWarning> {
             ]),
             const SizedBox(height: ThemePaddings.normalPadding),
             Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: getButtons())
           ])
     ]));

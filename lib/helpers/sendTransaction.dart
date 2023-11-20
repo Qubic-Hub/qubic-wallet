@@ -10,9 +10,8 @@ Future<bool> sendTransactionDialog(BuildContext context, String sourceId,
     String destinationId, int value, int destinationTick) async {
   String seed = await getIt.get<ApplicationStore>().getSeedByPublicId(sourceId);
   late String transactionKey;
-  late QubicCmd qubicCmd = QubicCmd();
+  QubicCmd qubicCmd = getIt.get<QubicCmd>();
   try {
-    await qubicCmd.initialize();
     //Get the signed transaction
     transactionKey = await qubicCmd.createTransaction(
         seed, destinationId, value, destinationTick);
@@ -22,8 +21,10 @@ Future<bool> sendTransactionDialog(BuildContext context, String sourceId,
           "THE WALLET YOU ARE CURRENTLY USING IS TAMPERED.\n\nINSTALL AN OFFICIAL VERSION FROM QUBIC-HUB.COM OR RISK LOSS OF FUNDS");
       return false;
     }
+
     showAlertDialog(
         context, "Error while generating transaction: ", e.toString());
+
     return false;
   }
 

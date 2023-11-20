@@ -25,7 +25,7 @@ class AddAccount extends StatefulWidget {
 class _AddAccountState extends State<AddAccount> {
   final _formKey = GlobalKey<FormBuilderState>();
   final ApplicationStore appStore = getIt<ApplicationStore>();
-  final QubicCmd qubicCmd = QubicCmd();
+  final QubicCmd qubicCmd = getIt<QubicCmd>();
 
   bool detected = false;
   bool generatingId = false;
@@ -40,7 +40,6 @@ class _AddAccountState extends State<AddAccount> {
   @override
   void dispose() {
     super.dispose();
-    qubicCmd.dispose();
   }
 
   void showQRScanner() {
@@ -440,6 +439,8 @@ class _AddAccountState extends State<AddAccount> {
           return AddAccountWarning(onAccept: () async {
             Navigator.pop(context);
             await _saveId();
+          }, onReject: () async {
+            Navigator.pop(context);
           });
         });
   }
