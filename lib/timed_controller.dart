@@ -26,24 +26,32 @@ class TimedController {
       appStore.currentTick = tick;
 
       //Fetch the balances
-      final balances = await _apiService.getBalances(
-          appStore.currentQubicIDs.map((e) => e.publicId).toList());
+      // final balances = await _apiService.getBalances(
+      //     appStore.currentQubicIDs.map((e) => e.publicId).toList());
 
       // //Fetch the current balances
       // final currentBalances = await _apiService.getCurrentBalances(
       //     appStore.currentQubicIDs.map((e) => e.publicId).toList());
       // await appStore.setCurrentBalanances(currentBalances);
 
+      final networkBalances = await _apiService.getNetworkBalances(
+          appStore.currentQubicIDs.map((e) => e.publicId).toList());
+
       final assets = await _apiService.getCurrentAssets(
           appStore.currentQubicIDs.map((e) => e.publicId).toList());
 
-      //await appStore.setAmounts(balances);
-      await appStore.setAmountsAndAssets(
-          balances, assets); //appStore.setAssets(assets);
+      final transactions = await _apiService.getTransactions(
+          appStore.currentQubicIDs.map((e) => e.publicId).toList());
 
-      balances.forEach((balance) {
-        appStore.updateTransactions(balance.transactions);
-      });
+      //await appStore.setAmounts(balances);
+      await appStore.setBalancesAndAssets(
+          networkBalances, assets); //appStore.setAssets(assets);
+
+      appStore.updateTransactions(transactions);
+
+      // balances.forEach((balance) {
+      //   appStore.updateTransactions(balance.transactions);
+      // });
 
       // final ticks = await _apiService.getTicks();
       // currentTick = ticks;

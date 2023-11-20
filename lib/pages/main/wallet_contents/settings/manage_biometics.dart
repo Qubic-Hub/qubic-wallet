@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:qubic_wallet/di.dart';
 import 'package:qubic_wallet/flutter_flow/theme_paddings.dart';
+import 'package:qubic_wallet/helpers/re_auth_dialog.dart';
 import 'package:qubic_wallet/stores/application_store.dart';
 import 'package:qubic_wallet/stores/settings_store.dart';
 import 'package:settings_ui/settings_ui.dart';
@@ -99,12 +100,22 @@ class _ManageBiometricsState extends State<ManageBiometrics> {
               tiles: <SettingsTile>[
                 SettingsTile.switchTile(
                   onToggle: (value) async {
+                    //When enabling, then reauthenticate and then localise Authenticate
                     if (value == true) {
+                      final bool reAuthValue = await reAuthDialog(context);
+                      if (!reAuthValue) {
+                        return false;
+                      }
                       final bool didAuthenticate = await auth.authenticate(
                           localizedReason: ' ',
                           options:
                               const AuthenticationOptions(biometricOnly: true));
                       if (!didAuthenticate) {
+                        return false;
+                      }
+                    } else {
+                      final bool reAuthValue = await reAuthDialog(context);
+                      if (!reAuthValue) {
                         return false;
                       }
                     }

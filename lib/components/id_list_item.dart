@@ -261,7 +261,7 @@ class IdListItem extends StatelessWidget {
                   key: ValueKey<String>(
                       "qubicAsset${item.publicId}-${key}-${item.shares[key]}"),
                   assetName: key,
-                  numberOfShares: item.shares[key],
+                  numberOfShares: item.shares[key]?.amount,
                   style: Theme.of(context).textTheme.displaySmall!.copyWith(
                       fontWeight: FontWeight.normal,
                       fontFamily: ThemeFonts.primary)))

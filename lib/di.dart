@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:qubic_wallet/resources/qubic_cmd.dart';
 import 'package:qubic_wallet/resources/qubic_hub.dart';
 import 'package:qubic_wallet/resources/qubic_js.dart';
 import 'package:qubic_wallet/resources/qubic_li.dart';
@@ -29,4 +30,6 @@ void setupDI() {
   //Services
   getIt.registerSingleton<QubicHubService>(QubicHubService());
   getIt.registerSingleton<TimedController>(TimedController());
+
+  getIt.registerSingleton<QubicCmd>(QubicCmd());
 }

@@ -13,6 +13,7 @@ import 'package:qubic_wallet/dtos/explorer_query_dto.dart';
 import 'package:qubic_wallet/dtos/explorer_tick_info_dto.dart';
 import 'package:qubic_wallet/dtos/network_overview_dto.dart';
 import 'package:qubic_wallet/dtos/qubic_asset_dto.dart';
+import 'package:qubic_wallet/dtos/transaction_dto.dart';
 import 'package:qubic_wallet/stores/application_store.dart';
 import 'package:qubic_wallet/stores/explorer_store.dart';
 
@@ -34,6 +35,7 @@ class QubicLi {
       'Host': 'api.qubic.li',
       'Pragma': 'no-cache',
       'Referer': 'https://wallet.qubic.li',
+      'Origin': 'https://wallet.qublic.li',
       'User-Agent':
           'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36',
       'Sec-Ch-Ua':
@@ -70,8 +72,11 @@ class QubicLi {
       });
       response = await http.post(
           Uri.https(Config.walletDomain, Config.URL_Login),
-          body: json.encode(
-              {'username': Config.authUser, 'password': Config.authPass}),
+          body: json.encode({
+            'username': Config.authUser,
+            'password': Config.authPass,
+            'twoFactorCode': ""
+          }),
           headers: headers);
       appStore.decreasePendingRequests();
     } catch (e) {
@@ -208,7 +213,51 @@ class QubicLi {
     return networkOverviewDto;
   }
 
-  Future<List<CurrentBalanceDto>> getCurrentBalances(
+  Future<List<TransactionDto>> getTransactions(List<String> publicIds) async {
+    _assertAuthorized();
+    appStore.incrementPendingRequests();
+    late http.Response response;
+    try {
+      var headers = QubicLi.getHeaders();
+      headers.addAll({
+        'Authorization': 'bearer ${_authenticationToken!}',
+        'Content-Type': 'application/json'
+      });
+      response = await http.post(
+          Uri.https(Config.walletDomain, Config.URL_NetworkTransactions),
+          body: json.encode(publicIds),
+          headers: headers);
+
+      appStore.decreasePendingRequests();
+    } catch (e) {
+      appStore.decreasePendingRequests();
+      throw Exception(
+          'Failed to contact server for fetching current transactions.');
+    }
+    _assert200Response(response.statusCode);
+
+    late dynamic parsedJson;
+    late var transactions = <TransactionDto>[];
+
+    try {
+      parsedJson = jsonDecode(response.body);
+    } catch (e) {
+      throw Exception(
+          'Failed to fetch current transactions. Could not parse response');
+    }
+    try {
+      transactions = parsedJson
+          .map((e) => TransactionDto.fromJson(e))
+          .toList()
+          .cast<TransactionDto>();
+    } catch (e) {
+      throw Exception(
+          'Failed to fetch current transactions. Server response is missing required info');
+    }
+    return transactions;
+  }
+
+  Future<List<CurrentBalanceDto>> getNetworkBalances(
       List<String> publicIds) async {
     _assertAuthorized();
     appStore.incrementPendingRequests();

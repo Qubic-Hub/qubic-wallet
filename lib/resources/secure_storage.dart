@@ -1,6 +1,7 @@
 // ignore_for_file: non_constant_identifier_names
 
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:dargon2_flutter/dargon2_flutter.dart';
 import 'package:flutter/foundation.dart';
@@ -46,18 +47,34 @@ class CriticalSettings {
   late List<String> publicIds;
   late List<String> privateSeeds;
   late List<String> names;
+  String? padding;
   CriticalSettings(
       {required this.storedPasswordHash,
       required this.publicIds,
       required this.privateSeeds,
-      required this.names});
+      required this.names,
+      this.padding}) {
+    padding ??= _generateRandomString();
+  }
+
+  String _generateRandomString() {
+    var r = Random();
+    var len = Random().nextInt(128);
+    while (len < 64) {
+      len = Random().nextInt(128);
+    }
+    return String.fromCharCodes(
+        List.generate(len, (index) => r.nextInt(33) + 89));
+  }
 
   String toJSON() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['storedPasswordHash'] = storedPasswordHash;
+    data['padding'] = padding;
     data['publicIds'] = publicIds;
     data['privateSeeds'] = privateSeeds;
     data['names'] = names;
+
     return json.encode(data);
   }
 
@@ -67,11 +84,14 @@ class CriticalSettings {
     final List<String> publicIds = List<String>.from(data['publicIds']);
     final List<String> privateSeeds = List<String>.from(data['privateSeeds']);
     final List<String> names = List<String>.from(data['names']);
+    final String? padding =
+        data.containsKey("padding") ? data['padding'] : null; //data['padding'];
     return CriticalSettings(
         storedPasswordHash: storedPasswordHash,
         publicIds: publicIds,
         privateSeeds: privateSeeds,
-        names: names);
+        names: names,
+        padding: padding);
   }
 }
 
@@ -122,7 +142,8 @@ class SecureStorage {
     }
   }
 
-  /// Signs a user in the wallet
+  /// Signs a user in the wallet. Updates the padding of the wallet settings
+  /// if user signs in correctly
   /// Returns true if the password is correct
   Future<bool> signInWallet(String password) async {
     CriticalSettings settings = await getCriticalSettings();
@@ -132,7 +153,8 @@ class SecureStorage {
         settings.storedPasswordHash!.trim().isEmpty) {
       return false;
     }
-    return await compute((PassAndHash message) async {
+
+    var result = await compute((PassAndHash message) async {
       try {
         DArgon2Flutter.init();
 
@@ -143,6 +165,13 @@ class SecureStorage {
         return false;
       }
     }, PassAndHash(password: password, hash: settings.storedPasswordHash!));
+
+    if (result) {
+      Settings s = await getWalletSettings();
+      s.padding = settings.padding;
+      await setWalletSettings(s);
+    }
+    return result;
   }
 
   //Makes sure that all the wallet keys are valid
@@ -194,7 +223,11 @@ class SecureStorage {
         key: SecureStorageKeys.criticalSettings, value: csettings.toJSON());
     await storage.write(
         key: SecureStorageKeys.settings,
-        value: Settings(TOTPKey: null, biometricEnabled: false).toJSON());
+        value: Settings(
+                TOTPKey: null,
+                biometricEnabled: false,
+                padding: csettings.padding)
+            .toJSON());
     return true;
   }
 
@@ -203,14 +236,28 @@ class SecureStorage {
     if (settings == null) {
       throw Exception("Settings not found");
     }
+
+    Settings settingsObj;
     try {
-      return Settings.fromJson(settings);
+      settingsObj = Settings.fromJson(settings);
     } catch (e) {
       throw Exception("Settings not found or malformed");
     }
+
+    return settingsObj;
+  }
+
+  Future<void> updateWalletSettingsPadding(String padding) async {
+    var settings = await getWalletSettings();
+    settings.padding = padding;
+    await storage.write(
+        key: SecureStorageKeys.settings, value: settings.toJSON());
   }
 
   Future<Settings> setWalletSettings(Settings settings) async {
+    var csettings = await getCriticalSettings();
+    settings.padding = csettings.padding;
+
     await storage.write(
         key: SecureStorageKeys.settings, value: settings.toJSON());
     return settings;
@@ -220,8 +267,8 @@ class SecureStorage {
     CriticalSettings settings = await getCriticalSettings();
     List<QubicListVm> list = [];
     for (int i = 0; i < settings.publicIds.length; i++) {
-      list.add(
-          QubicListVm(settings.publicIds[i], settings.names[i], null, null));
+      list.add(QubicListVm(
+          settings.publicIds[i], settings.names[i], null, null, null));
     }
     return list;
   }
@@ -242,6 +289,7 @@ class SecureStorage {
     settings.names.add(qubicId.getName());
     await storage.write(
         key: SecureStorageKeys.criticalSettings, value: settings.toJSON());
+    await updateWalletSettingsPadding(settings.padding!);
   }
 
   Future<void> renameId(String publicId, String name) async {
@@ -252,6 +300,7 @@ class SecureStorage {
 
     await storage.write(
         key: SecureStorageKeys.criticalSettings, value: settings.toJSON());
+    await updateWalletSettingsPadding(settings.padding!);
   }
 
   //Gets a Qubic ID from a public key
@@ -278,6 +327,7 @@ class SecureStorage {
     settings.names.removeAt(i);
     await storage.write(
         key: SecureStorageKeys.criticalSettings, value: settings.toJSON());
+    await updateWalletSettingsPadding(settings.padding!);
     return true;
   }
 }

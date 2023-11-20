@@ -102,7 +102,14 @@ class TransactionResend extends StatelessWidget {
                       .titleLarge!
                       .copyWith(fontFamily: ThemeFonts.primary)));
         }
-        return Text("$prepend address: ");
+        return Container(
+            width: double.infinity,
+            child: Text("$prepend address: ",
+                textAlign: TextAlign.start,
+                style: Theme.of(context)
+                    .textTheme
+                    .titleLarge!
+                    .copyWith(fontFamily: ThemeFonts.primary)));
       }),
       Text(id,
           style: Theme.of(context)

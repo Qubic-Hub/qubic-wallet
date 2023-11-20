@@ -87,7 +87,7 @@ class _RevealSeedWarningState extends State<RevealSeedWarning> {
                   width: 220,
                   child: Padding(
                       padding: EdgeInsets.all(ThemePaddings.normalPadding),
-                      child: Text("SHOW PRIVATE SEED",
+                      child: Text("Show private seed",
                           textAlign: TextAlign.center)))))
     ];
   }
@@ -108,7 +108,7 @@ class _RevealSeedWarningState extends State<RevealSeedWarning> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Divider(),
-            Row(children: [
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               Checkbox(
                   value: hasAccepted,
                   onChanged: (value) {

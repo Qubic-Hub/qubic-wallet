@@ -169,6 +169,16 @@ mixin _$ApplicationStore on _ApplicationStore, Store {
     return _$setNameAsyncAction.run(() => super.setName(publicId, name));
   }
 
+  late final _$setBalancesAndAssetsAsyncAction =
+      AsyncAction('_ApplicationStore.setBalancesAndAssets', context: context);
+
+  @override
+  Future<void> setBalancesAndAssets(
+      List<CurrentBalanceDto> balances, List<QubicAssetDto> assets) {
+    return _$setBalancesAndAssetsAsyncAction
+        .run(() => super.setBalancesAndAssets(balances, assets));
+  }
+
   late final _$setAmountsAndAssetsAsyncAction =
       AsyncAction('_ApplicationStore.setAmountsAndAssets', context: context);
 

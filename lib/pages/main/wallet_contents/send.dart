@@ -5,6 +5,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:qubic_wallet/components/id_list_item_select.dart';
 import 'package:qubic_wallet/di.dart';
 import 'package:qubic_wallet/extensions/asThousands.dart';
@@ -124,7 +125,6 @@ class _SendState extends State<Send> {
     showModalBottomSheet<void>(
         context: context,
         builder: (BuildContext context) {
-          bool foundSuccess = false;
           return Stack(children: [
             MobileScanner(
               // fit: BoxFit.contain,
@@ -136,7 +136,7 @@ class _SendState extends State<Send> {
 
               onDetect: (capture) {
                 final List<Barcode> barcodes = capture.barcodes;
-
+                bool foundSuccess = false;
                 for (final barcode in barcodes) {
                   if (barcode.rawValue != null) {
                     var value = destinationID.text;
@@ -144,15 +144,17 @@ class _SendState extends State<Send> {
                         .replaceAll("https://wallet.qubic.li/payment/", "");
                     var validator = CustomFormFieldValidators.isPublicID();
                     if (validator(value) == null) {
+                      if (foundSuccess == true) {
+                        break;
+                      }
                       destinationID.text = value;
                       foundSuccess = true;
                     }
                   }
-
-                  if (foundSuccess) {
-                    Navigator.pop(context);
-                    showSnackBar("Successfully scanned QR Code");
-                  }
+                }
+                if (foundSuccess) {
+                  Navigator.pop(context);
+                  showSnackBar("Successfully scanned QR Code");
                 }
               },
             ),
@@ -620,6 +622,7 @@ class _SendState extends State<Send> {
       isLoading = false;
       frozenCurrentTick = null;
       frozenTargetTick = null;
+      getIt.get<PersistentTabController>().jumpToTab(1);
     });
 
     Navigator.pop(context);

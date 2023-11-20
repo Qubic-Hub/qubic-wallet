@@ -22,7 +22,7 @@ class QubicJs {
       return;
     }
     InAppWebView = HeadlessInAppWebView(
-        onWebViewCreated: (WVcontroller) {
+        onWebViewCreated: (WVcontroller) async {
           WVcontroller.loadFile(assetFilePath: "assets/qubic_js/index.html");
 
           controller = WVcontroller;
@@ -35,7 +35,12 @@ class QubicJs {
           isReady = true;
         });
 
+    print("Initializing JS");
     await InAppWebView!.run();
+    while (controller == null) {
+      sleep(const Duration(milliseconds: 100));
+    }
+    print("Initialized!");
   }
 
   bool isReady = false;
