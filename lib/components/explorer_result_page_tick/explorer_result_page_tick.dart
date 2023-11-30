@@ -36,6 +36,7 @@ class ExplorerResultPageTick extends StatelessWidget {
                     isFocused: focusedTransactionId == null
                         ? false
                         : focusedTransactionId! == transaction.id,
+                    dataStatus: tickInfo.completed,
                   ),
                 )
               : Container()

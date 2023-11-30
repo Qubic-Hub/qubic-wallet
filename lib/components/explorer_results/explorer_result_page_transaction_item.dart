@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:qubic_wallet/components/copyable_text.dart';
+import 'package:qubic_wallet/components/explorer_transaction_status_item.dart';
 import 'package:qubic_wallet/components/qubic_amount.dart';
 import 'package:qubic_wallet/di.dart';
 import 'package:qubic_wallet/dtos/explorer_transaction_info_dto.dart';
@@ -9,6 +10,7 @@ import 'package:qubic_wallet/flutter_flow/theme_paddings.dart';
 import 'package:qubic_wallet/models/qubic_list_vm.dart';
 // ignore: depend_on_referenced_packages
 import 'package:collection/collection.dart';
+import 'package:qubic_wallet/models/transaction_vm.dart';
 
 import '../../stores/application_store.dart';
 
@@ -19,11 +21,13 @@ class ExplorerResultPageTransactionItem extends StatelessWidget {
 
   final bool isFocused;
   final bool showTick;
+  final bool? dataStatus;
   ExplorerResultPageTransactionItem(
       {super.key,
       required this.transaction,
       this.isFocused = false,
-      this.showTick = false});
+      this.showTick = false,
+      this.dataStatus = false});
 
   TextStyle itemHeaderType(context) {
     return Theme.of(context)
@@ -59,7 +63,10 @@ class ExplorerResultPageTransactionItem extends StatelessWidget {
         .copyWith(fontFamily: ThemeFonts.secondary);
 
     return Card(
-        surfaceTintColor: transaction.executed ? Colors.green : Colors.red,
+        surfaceTintColor:
+            transaction.getStatus() == ComputedTransactionStatus.success
+                ? Colors.green
+                : Colors.red,
         elevation: 5,
         borderOnForeground: false,
         child: Padding(
@@ -70,6 +77,7 @@ class ExplorerResultPageTransactionItem extends StatelessWidget {
               ThemePaddings.normalPadding), // add padding here
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            ExplorerTransactionStatusItem(item: transaction),
             Text("Transaction ID",
                 textAlign: TextAlign.center, style: itemHeaderType(context)),
             CopyableText(
@@ -80,11 +88,12 @@ class ExplorerResultPageTransactionItem extends StatelessWidget {
                         fontWeight: FontWeight.w500))),
             const Divider(),
             Container(
-              width: double.infinity,
-              child: FittedBox(
-                  fit: BoxFit.cover,
-                  child: QubicAmount(amount: transaction.amount)),
-            ),
+                width: double.infinity,
+                child: FittedBox(
+                    fit: BoxFit.cover,
+                    child: QubicAmount(
+                        amount: 1000000000000)) // transaction.amount)),
+                ),
             Flex(direction: Axis.horizontal, children: [
               Expanded(
                   flex: 1,
@@ -94,15 +103,9 @@ class ExplorerResultPageTransactionItem extends StatelessWidget {
                         alignment: Alignment.center,
                         child: Row(
                           children: [
-                            transaction.executed
-                                ? const Icon(
-                                    Icons.check,
-                                    color: Colors.green,
-                                  )
-                                : const Icon(Icons.close, color: Colors.red),
                             Text(transaction.executed
-                                ? " Executed"
-                                : " Not executed")
+                                ? "- Included by Qubic Network"
+                                : "-  Not included by Qubic Network")
                           ],
                         )),
                     transaction.includedByTickLeader
@@ -111,16 +114,9 @@ class ExplorerResultPageTransactionItem extends StatelessWidget {
                             alignment: Alignment.center,
                             child: Row(
                               children: [
-                                transaction.includedByTickLeader
-                                    ? const Icon(
-                                        Icons.check,
-                                        color: Colors.green,
-                                      )
-                                    : const Icon(Icons.close,
-                                        color: Colors.red),
                                 Text(transaction.includedByTickLeader
-                                    ? "Included by Tick Leader"
-                                    : "Not included by Tick Leader")
+                                    ? "- Included by Tick Leader"
+                                    : "-  Not included by Tick Leader")
                               ],
                             ))
                         : Container(),

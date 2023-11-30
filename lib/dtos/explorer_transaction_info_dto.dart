@@ -1,4 +1,6 @@
 // Holds transaction information for an explorer query
+import 'package:qubic_wallet/models/transaction_vm.dart';
+
 class ExplorerTransactionInfoDto {
   String id;
   bool executed;
@@ -10,6 +12,19 @@ class ExplorerTransactionInfoDto {
   int type;
   String digest;
   bool moneyFlew;
+
+  ComputedTransactionStatus getStatus() {
+    if (!executed) {
+      return ComputedTransactionStatus.failure;
+    }
+    if (executed && moneyFlew) {
+      return ComputedTransactionStatus.success;
+    }
+    if (executed && !moneyFlew) {
+      return ComputedTransactionStatus.invalid;
+    }
+    return ComputedTransactionStatus.failure;
+  }
 
   ExplorerTransactionInfoDto(
       this.id,

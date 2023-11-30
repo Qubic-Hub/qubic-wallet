@@ -98,10 +98,12 @@ class ExplorerResultPageTickHeader extends StatelessWidget {
                       tickInfo.completed
                           ? const Icon(Icons.check, color: Colors.green)
                           : const Icon(Icons.hourglass_empty,
-                              color: Colors.yellow),
+                              color: Colors.red),
                       Text(
                         tickInfo.completed ? " Completed" : " Not validated",
-                        style: panelHeaderValue,
+                        style: tickInfo.completed
+                            ? panelHeaderValue
+                            : panelHeaderValue.copyWith(color: Colors.red),
                       )
                     ]),
               ],
