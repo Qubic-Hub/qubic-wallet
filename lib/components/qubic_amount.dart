@@ -125,6 +125,23 @@ class QubicAmount extends StatelessWidget {
       return Row(mainAxisAlignment: MainAxisAlignment.center, children: output);
     }
 
+    //Leave styling for ultra big
+    if (amount! > 1000000000000) {
+      List<Widget> numbers = [];
+
+      numbers.add(Text(amount.toString(),
+          style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                fontFamily: ThemeFonts.primary,
+              )));
+      numbers.add(Text(" \$QUBIC",
+          style: Theme.of(context)
+              .textTheme
+              .titleMedium!
+              .copyWith(fontFamily: ThemeFonts.primary)));
+      return Row(
+          mainAxisAlignment: MainAxisAlignment.center, children: numbers);
+    }
+
     final int trillions = (amount! / 1000000000000).floor();
     final int billions =
         ((amount! - trillions * 1000000000000) / 1000000000).floor();
