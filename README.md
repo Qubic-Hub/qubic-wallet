@@ -88,3 +88,7 @@ Soon there will be a dedicated compilation manual page. Until then here's some b
 
 Feel free to contribute to the project. Just create an MR. Tests are being written and will be added to the repo. Until then, checking is manual.
 Feel free to post any found bugs in Issues page.
+
+
+# Donations
+If you want to support us, please donate to WZFSPXPLXKNWFDLNMZHQTGMSRIHBEBITVDUXOSVSZGBREGIUVNWVZBIETEQF
