@@ -41,7 +41,7 @@ class _TransfersListState extends State<TransfersList> {
                   child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text("Receive funds in ",
+              Text("Receive in ",
                   style: Theme.of(context)
                       .textTheme
                       .displayMedium!

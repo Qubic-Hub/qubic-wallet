@@ -56,7 +56,7 @@ class _MainScreenState extends State<MainScreen> {
       ),
       PersistentBottomNavBarItem(
         icon: const Icon(Icons.compare_arrows),
-        title: ("Transactions"),
+        title: ("Transfers"),
         activeColorPrimary: Theme.of(context).primaryColor,
         inactiveColorPrimary: Theme.of(context).disabledColor,
       ),
@@ -169,11 +169,15 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Observer(builder: (context) {
-      if (UniversalPlatform.isDesktop && !settingsStore.cmdUtilsAvailable) {
-        return DownloadCmdUtils();
-      }
-      return getMain();
-    });
+    if (UniversalPlatform.isDesktop && !settingsStore.cmdUtilsAvailable) {
+      return DownloadCmdUtils();
+    }
+    return getMain();
+    // return Observer(builder: (context) {
+    //   if (UniversalPlatform.isDesktop && !settingsStore.cmdUtilsAvailable) {
+    //     return DownloadCmdUtils();
+    //   }
+    //   return getMain();
+    //});
   }
 }

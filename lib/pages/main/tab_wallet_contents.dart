@@ -78,7 +78,7 @@ class _TabWalletContentsState extends State<TabWalletContents> {
                           .titleMedium
                           ?.color!
                           .withOpacity(0.3)),
-                  const Text("You don't have any Qubic IDs yet"),
+                  const Text("No Qubic IDs in wallet yet"),
                   const SizedBox(height: ThemePaddings.normalPadding),
                   FilledButton.icon(
                       onPressed: () {

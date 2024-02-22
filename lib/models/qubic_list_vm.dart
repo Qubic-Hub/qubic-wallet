@@ -1,19 +1,13 @@
 import 'dart:core';
 import 'package:mobx/mobx.dart';
-
-class ShareVm {
-  late int amount;
-  late int tick;
-
-  ShareVm(this.amount, this.tick);
-}
+import 'package:qubic_wallet/dtos/qubic_asset_dto.dart';
 
 @observable
 class QubicListVm {
   @observable
   late String _publicId; //The public ID
   @observable
-  late String _name; //A descriptive name of the ID
+  late String _name; //A descriptive  name of the ID
   @observable
   late int? amount; //The amount of the ID
 
@@ -21,18 +15,18 @@ class QubicListVm {
   late int? amountTick; //The tick when amount was valid for
 
   @observable
-  Map<String, ShareVm> shares = {};
+  Map<String, QubicAssetDto> assets = {};
 
   @observable
   late bool? hasPendingTransaction;
 
   QubicListVm(String publicId, String name, this.amount, this.amountTick,
-      Map<String, ShareVm>? shares) {
+      Map<String, QubicAssetDto>? assets) {
     _publicId = publicId.replaceAll(",", "_");
     _name = name.replaceAll(",", "_");
-    this.shares.clear();
-    if (shares != null) {
-      this.shares.addAll(shares);
+    this.assets.clear();
+    if (assets != null) {
+      this.assets.addAll(assets);
     }
   }
 
@@ -53,30 +47,45 @@ class QubicListVm {
   }
 
   void clearShares() {
-    shares = {};
+    assets = {};
   }
 
   /// Sets the number of shares (without mutation)
-  void setShare(String assetName, int numberOfShares, int tick) {
-    Map<String, ShareVm> newShares = {};
-    newShares.addAll(shares);
+  void setShares(List<QubicAssetDto> newAssets) {
+    Map<String, QubicAssetDto> mergedAssets = {};
 
-    if (((newShares.containsKey(assetName)) &&
-            (tick > newShares[assetName]!.tick)) ||
-        (newShares.containsKey(assetName) == false)) {
-      newShares[assetName] = ShareVm(numberOfShares, tick);
+    for (int i = 0; i < newAssets.length; i++) {
+      String name =
+          newAssets[i].assetName + "-" + newAssets[i].contractIndex.toString();
+      if (mergedAssets.containsKey(name)) {
+        if (mergedAssets[name]!.tick < newAssets[i].tick) {
+          mergedAssets[name] = newAssets[i].clone();
+        }
+      } else {
+        mergedAssets[name] = newAssets[i].clone();
+      }
     }
-    shares = newShares;
+
+    assets = Map<String, QubicAssetDto>.from(mergedAssets);
   }
 
-  Map<String, ShareVm> getShares() {
-    return shares;
+  Map<String, QubicAssetDto> getAssets() {
+    return assets;
   }
 
-  Map<String, ShareVm> getClonedShares() {
-    Map<String, ShareVm> newShares = {};
-    shares.forEach((key, value) {
-      newShares[key] = ShareVm(value.amount, value.tick);
+  Map<String, QubicAssetDto> getClonedAssets() {
+    Map<String, QubicAssetDto> newShares = {};
+    assets.forEach((key, value) {
+      newShares[key] = QubicAssetDto(
+          assetName: value.assetName,
+          contractIndex: value.contractIndex,
+          tick: value.tick,
+          contractName: value.contractName,
+          issuerIdentity: value.issuerIdentity,
+          ownedAmount: value.ownedAmount,
+          possessedAmount: value.possessedAmount,
+          publicId: value.publicId,
+          reportingNodes: value.reportingNodes);
     });
     return newShares;
   }
@@ -87,6 +96,6 @@ class QubicListVm {
         original.name,
         original.amount,
         original.amountTick,
-        Map<String, ShareVm>.from(original.getClonedShares()));
+        Map<String, QubicAssetDto>.from(original.getClonedAssets()));
   }
 }

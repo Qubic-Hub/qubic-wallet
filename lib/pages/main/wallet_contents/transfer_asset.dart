@@ -8,9 +8,9 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:qubic_wallet/components/id_list_item_select.dart';
 import 'package:qubic_wallet/di.dart';
+import 'package:qubic_wallet/dtos/qubic_asset_dto.dart';
 import 'package:qubic_wallet/extensions/asThousands.dart';
 import 'package:qubic_wallet/flutter_flow/theme_paddings.dart';
-import 'package:qubic_wallet/globals.dart';
 import 'package:qubic_wallet/helpers/id_validators.dart';
 import 'package:qubic_wallet/helpers/platform_helpers.dart';
 import 'package:qubic_wallet/helpers/re_auth_dialog.dart';
@@ -29,19 +29,21 @@ enum TargetTickType {
   manual
 }
 
-class Send extends StatefulWidget {
+class TransferAsset extends StatefulWidget {
   final QubicListVm item;
-  const Send({super.key, required this.item});
+  final QubicAssetDto asset;
+  const TransferAsset({super.key, required this.item, required this.asset});
 
   @override
   // ignore: library_private_types_in_public_api
-  _SendState createState() => _SendState();
+  _TransferAssetState createState() => _TransferAssetState();
 }
 
-class _SendState extends State<Send> {
+class _TransferAssetState extends State<TransferAsset> {
   final _formKey = GlobalKey<FormBuilderState>();
   final ApplicationStore appStore = getIt<ApplicationStore>();
   final TimedController _timedController = getIt<TimedController>();
+  final GlobalKey<_TransferAssetState> widgetKey = GlobalKey();
 
   int targetTick = 0;
   int? frozenTargetTick;
@@ -69,16 +71,22 @@ class _SendState extends State<Send> {
         value: TargetTickType.manual, child: Text("Manual override"))
   ];
 
-  final CurrencyInputFormatter inputFormatter = CurrencyInputFormatter(
-      trailingSymbol: "\$QUBIC",
-      useSymbolPadding: true,
-      thousandSeparator: ThousandSeparator.Comma,
-      mantissaLength: 0);
+  late final CurrencyInputFormatter inputFormatter;
 
   String? generatedPublicId;
 
   @override
   void initState() {
+    transactionCostCtrl.text = "1,000,000 \$QUBIC";
+
+    inputFormatter = CurrencyInputFormatter(
+        trailingSymbol:
+            "${widget.asset.assetName} ${QubicAssetDto.isSmartContractShare(widget.asset) ? "shares" : "tokens"}",
+        useSymbolPadding: true,
+        maxTextLength: 3,
+        thousandSeparator: ThousandSeparator.Comma,
+        mantissaLength: 0);
+
     super.initState();
   }
 
@@ -87,11 +95,11 @@ class _SendState extends State<Send> {
     super.dispose();
   }
 
-  int getQubicAmount() {
-    return int.parse(amount.text
-        .replaceAll(",", "")
+  int getAssetAmount() {
+    return int.parse(numberOfSharesCtrl.text
+        .substring(0, numberOfSharesCtrl.text.indexOf(" "))
         .replaceAll(" ", "")
-        .replaceAll("\$QUBIC", ""));
+        .replaceAll(",", ""));
   }
 
   showAlertDialog(BuildContext context, String title, String message) {
@@ -177,7 +185,7 @@ class _SendState extends State<Send> {
         context: context,
         isScrollControlled: true,
         builder: (BuildContext context) {
-          return Container(
+          return SizedBox(
             height: 400,
             child: Center(
                 child: Padding(
@@ -355,6 +363,164 @@ class _SendState extends State<Send> {
         ]);
   }
 
+  Widget getDestinationQubicId() {
+    return FormBuilderTextField(
+      name: "destinationID",
+      readOnly: isLoading,
+      controller: destinationID,
+      enableSuggestions: false,
+      keyboardType: TextInputType.visiblePassword,
+      validator: FormBuilderValidators.compose([
+        FormBuilderValidators.required(),
+        CustomFormFieldValidators.isPublicID(),
+      ]),
+      maxLines: 3,
+      maxLength: 60,
+      decoration: InputDecoration(
+          labelText: 'Destination Public ID',
+          suffixIcon: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                appStore.currentQubicIDs.length > 1
+                    ? IconButton(
+                        onPressed: () async {
+                          showPickerBottomSheet();
+                        },
+                        icon: const Icon(Icons.book))
+                    : Container(),
+                isMobile
+                    ? IconButton(
+                        onPressed: () async {
+                          showQRScanner();
+                        },
+                        icon: const Icon(Icons.qr_code))
+                    : Container()
+              ])),
+      autocorrect: false,
+      autofillHints: null,
+    );
+  }
+
+  Widget getPredefinedAmountOptions() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        TextButton(
+            child: Text("All",
+                style: Theme.of(context)
+                    .primaryTextTheme
+                    .titleSmall
+                    ?.copyWith(color: Theme.of(context).colorScheme.secondary)),
+            onPressed: () {
+              if (widget.asset.ownedAmount == null) {
+                return;
+              }
+              if (widget.asset.ownedAmount! > 0) {
+                numberOfSharesCtrl.value = inputFormatter.formatEditUpdate(
+                    const TextEditingValue(text: ''),
+                    TextEditingValue(
+                        text: (widget.asset.ownedAmount).toString()));
+              }
+            }),
+        (widget.asset.ownedAmount != null && widget.asset.ownedAmount! > 1)
+            ? TextButton(
+                child: Text("All except 1",
+                    style: Theme.of(context)
+                        .primaryTextTheme
+                        .titleSmall
+                        ?.copyWith(
+                            color: Theme.of(context).colorScheme.secondary)),
+                onPressed: () {
+                  if (widget.asset.ownedAmount == null) {
+                    return;
+                  }
+                  if (widget.asset.ownedAmount! > 1) {
+                    numberOfSharesCtrl.value = inputFormatter.formatEditUpdate(
+                        const TextEditingValue(text: ''),
+                        TextEditingValue(
+                            text: (widget.asset.ownedAmount! - 1).toString()));
+                  }
+                })
+            : Container()
+      ],
+    );
+  }
+
+  Widget getAmountBox() {
+    return FormBuilderTextField(
+      decoration: InputDecoration(
+          labelText:
+              "Number of ${QubicAssetDto.isSmartContractShare(widget.asset) ? " shares" : " tokens"}"),
+      name: "Amount",
+      readOnly: isLoading,
+      controller: numberOfSharesCtrl,
+      enableSuggestions: false,
+      textAlign: TextAlign.end,
+      keyboardType: TextInputType.number,
+      validator: FormBuilderValidators.compose([
+        FormBuilderValidators.required(),
+        CustomFormFieldValidators.isLessThanParsedAsset(
+          lessThan:
+              widget.asset.ownedAmount != null ? widget.asset.ownedAmount! : 0,
+        ),
+      ]),
+      inputFormatters: [inputFormatter],
+      maxLines: 1,
+      autocorrect: false,
+      autofillHints: null,
+    );
+  }
+
+  Widget getOwnershipInfo() {
+    return Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+              "${widget.asset.assetName}${QubicAssetDto.isSmartContractShare(widget.asset) ? " shares" : " Tokens"} owned by ID: ${formatter.format(widget.asset.ownedAmount)}",
+              style: Theme.of(context).textTheme.bodySmall!),
+        ]);
+  }
+
+  Widget getTotalQubicInfo() {
+    return Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text("Balance in ID: ${formatter.format(widget.item.amount)} \$QUBIC",
+              style: Theme.of(context).textTheme.bodySmall!)
+        ]);
+  }
+
+  Widget getCostInfo() {
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      FormBuilderTextField(
+        decoration: const InputDecoration(
+          labelText: 'Transaction cost (fixed)',
+          filled: false,
+        ),
+        name: "Cost",
+        controller: transactionCostCtrl,
+        readOnly: true,
+        enableSuggestions: false,
+        textAlign: TextAlign.end,
+        keyboardType: TextInputType.number,
+        validator: FormBuilderValidators.compose([
+          FormBuilderValidators.required(),
+          CustomFormFieldValidators.isLessThanParsed(
+              lessThan: widget.item.amount != null ? widget.item.amount! : 0),
+        ]),
+        inputFormatters: [inputFormatter],
+        maxLines: 1,
+        autocorrect: false,
+        autofillHints: null,
+      ),
+      const SizedBox(height: ThemePaddings.miniPadding),
+      getTotalQubicInfo()
+    ]);
+  }
+
   Widget getScrollView() {
     return SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
@@ -364,7 +530,8 @@ class _SendState extends State<Send> {
                   child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text("Send \$QUBIC from \"${widget.item.name}\"",
+              Text(
+                  "Transfer ${widget.asset.assetName} ${QubicAssetDto.isSmartContractShare(widget.asset) ? "shares" : "tokens"} from \"${widget.item.name}\"",
                   style: Theme.of(context)
                       .textTheme
                       .displayMedium!
@@ -387,132 +554,14 @@ class _SendState extends State<Send> {
                                 Container(),
                               ]),
                           Flex(direction: Axis.horizontal, children: [
-                            Expanded(
-                                flex: 10,
-                                child: FormBuilderTextField(
-                                  name: "destinationID",
-                                  readOnly: isLoading,
-                                  controller: destinationID,
-                                  enableSuggestions: false,
-                                  keyboardType: TextInputType.visiblePassword,
-                                  validator: FormBuilderValidators.compose([
-                                    FormBuilderValidators.required(),
-                                    CustomFormFieldValidators.isPublicID(),
-                                  ]),
-                                  maxLines: 3,
-                                  maxLength: 60,
-                                  decoration: InputDecoration(
-                                      labelText: 'Destination Qubic ID',
-                                      suffixIcon: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            appStore.currentQubicIDs.length > 1
-                                                ? IconButton(
-                                                    onPressed: () async {
-                                                      showPickerBottomSheet();
-                                                    },
-                                                    icon:
-                                                        const Icon(Icons.book))
-                                                : Container(),
-                                            isMobile
-                                                ? IconButton(
-                                                    onPressed: () async {
-                                                      showQRScanner();
-                                                    },
-                                                    icon: const Icon(
-                                                        Icons.qr_code))
-                                                : Container()
-                                          ])),
-                                  autocorrect: false,
-                                  autofillHints: null,
-                                )),
+                            Expanded(flex: 10, child: getDestinationQubicId())
                           ]),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              TextButton(
-                                  child: Text("All",
-                                      style: Theme.of(context)
-                                          .primaryTextTheme
-                                          .titleSmall
-                                          ?.copyWith(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .secondary)),
-                                  onPressed: () {
-                                    if (widget.item.amount == null) {
-                                      return;
-                                    }
-                                    if (widget.item.amount! > 0) {
-                                      amount.value =
-                                          inputFormatter.formatEditUpdate(
-                                              const TextEditingValue(text: ''),
-                                              TextEditingValue(
-                                                  text: (widget.item.amount)
-                                                      .toString()));
-                                    }
-                                  }),
-                              (widget.item.amount != null &&
-                                      widget.item.amount! > 1)
-                                  ? TextButton(
-                                      child: Text("All except 1",
-                                          style: Theme.of(context)
-                                              .primaryTextTheme
-                                              .titleSmall
-                                              ?.copyWith(
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .secondary)),
-                                      onPressed: () {
-                                        if (widget.item.amount == null) {
-                                          return;
-                                        }
-                                        if (widget.item.amount! > 1) {
-                                          amount.value =
-                                              inputFormatter.formatEditUpdate(
-                                                  const TextEditingValue(
-                                                      text: ''),
-                                                  TextEditingValue(
-                                                      text:
-                                                          (widget.item.amount! -
-                                                                  1)
-                                                              .toString()));
-                                        }
-                                      })
-                                  : Container()
-                            ],
-                          ),
-                          FormBuilderTextField(
-                            decoration:
-                                const InputDecoration(labelText: 'Amount'),
-                            name: "Amount",
-                            readOnly: isLoading,
-                            controller: amount,
-                            enableSuggestions: false,
-                            textAlign: TextAlign.end,
-                            keyboardType: TextInputType.number,
-                            validator: FormBuilderValidators.compose([
-                              FormBuilderValidators.required(),
-                              CustomFormFieldValidators.isLessThanParsed(
-                                  lessThan: widget.item.amount!),
-                            ]),
-                            inputFormatters: [inputFormatter],
-                            maxLines: 1,
-                            autocorrect: false,
-                            autofillHints: null,
-                          ),
+                          getPredefinedAmountOptions(),
+                          getAmountBox(),
                           const SizedBox(height: ThemePaddings.miniPadding),
-                          Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                    "Balance in ID: ${formatter.format(widget.item.amount)} \$QUBIC",
-                                    style:
-                                        Theme.of(context).textTheme.bodySmall!),
-                              ]),
+                          getOwnershipInfo(),
+                          const SizedBox(height: ThemePaddings.bigPadding),
+                          getCostInfo(),
                           const SizedBox(height: ThemePaddings.bigPadding),
                           ExpansionPanelList(
                               expansionCallback: (int index, bool isExpanded) {
@@ -609,8 +658,15 @@ class _SendState extends State<Send> {
       }
     });
 
-    bool result = await sendTransactionDialog(context, widget.item.publicId,
-        destinationID.text, getQubicAmount(), frozenTargetTick!);
+    bool result = await sendAssetTransferTransactionDialog(
+        context,
+        widget.item.publicId,
+        destinationID.text,
+        widget.asset.assetName,
+        widget.asset.issuerIdentity,
+        getAssetAmount(),
+        frozenTargetTick!);
+
     if (!result) {
       setState(() {
         isLoading = false;
@@ -630,7 +686,7 @@ class _SendState extends State<Send> {
     Navigator.pop(context);
     //Timer(const Duration(seconds: 1), () => Navigator.pop(context));
 
-    showSnackBar("Submitted new transaction to Qubic network");
+    showSnackBar("Submitted transaction to Qubic network");
 
     setState(() {
       isLoading = false;
@@ -638,7 +694,8 @@ class _SendState extends State<Send> {
   }
 
   TextEditingController destinationID = TextEditingController();
-  TextEditingController amount = TextEditingController();
+  TextEditingController numberOfSharesCtrl = TextEditingController();
+  TextEditingController transactionCostCtrl = TextEditingController();
   TextEditingController tickController = TextEditingController();
 
   bool showAccountInfoTooltip = false;

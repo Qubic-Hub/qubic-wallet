@@ -18,21 +18,11 @@ class TimedController {
 
   //Fetches data (ticks and contents) from the backend
   fetchData() async {
-    //TODO HANDLE ERRORS
     try {
       //Fetch the ticks
       debugPrint("Getting tick...");
       int tick = await _apiService.getCurrentTick();
       appStore.currentTick = tick;
-
-      //Fetch the balances
-      // final balances = await _apiService.getBalances(
-      //     appStore.currentQubicIDs.map((e) => e.publicId).toList());
-
-      // //Fetch the current balances
-      // final currentBalances = await _apiService.getCurrentBalances(
-      //     appStore.currentQubicIDs.map((e) => e.publicId).toList());
-      // await appStore.setCurrentBalanances(currentBalances);
 
       final networkBalances = await _apiService.getNetworkBalances(
           appStore.currentQubicIDs.map((e) => e.publicId).toList());
@@ -48,17 +38,6 @@ class TimedController {
           networkBalances, assets); //appStore.setAssets(assets);
 
       appStore.updateTransactions(transactions);
-
-      // balances.forEach((balance) {
-      //   appStore.updateTransactions(balance.transactions);
-      // });
-
-      // final ticks = await _apiService.getTicks();
-      // currentTick = ticks;
-
-      //Fetch the contents
-      // final contents = await _apiService.getContents();
-      // currentQubicIDs = ObservableSet.of(contents);
     } on Exception catch (e) {
       showSnackBar(e.toString().replaceAll("Exception: ", ""));
     }

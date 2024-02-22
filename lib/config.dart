@@ -21,7 +21,9 @@ abstract class Config {
   static const authUser = "guest@qubic.li";
   static const authPass = "guest13@Qubic.li";
 
-  static const fetchEverySeconds = 15;
+  static const fetchEverySeconds = 60;
+
+  static const checkForTamperedUtils = true;
 
   // The qubic-hub.com backend
   static const servicesDomain = "wallet.qubic-hub.com";
@@ -30,18 +32,18 @@ abstract class Config {
   //Qubic Helper Utilities
   static final qubicHelper = QubicHelperConfig(
       win64: QubicHelperConfigEntry(
-          filename: "qubic-helper-win-x64-1_0_0.exe",
+          filename: "qubic-helper-win-x64-2_0_0.exe",
           downloadPath:
-              "https://github.com/Qubic-Hub/qubic-helper-utils/releases/download/1.0.0/qubic-helper-win-x64-1_0_0.exe",
-          checksum: "e1d62abd68662ec3d79b200eff966247"),
+              "https://github.com/Qubic-Hub/qubic-helper-utils/releases/download/2.0.0/qubic-helper-win-x64-2_0_0.exe",
+          checksum: "bd86d41c87f22a4bab0c768800bbfe45"),
       linux64: QubicHelperConfigEntry(
-          filename: "qubic-helper-linux-x64-1_0_0",
+          filename: "qubic-helper-linux-x64-2_0_0",
           downloadPath:
-              "https://github.com/Qubic-Hub/qubic-helper-utils/releases/download/1.0.0/qubic-helper-linux-x64-1_0_0",
-          checksum: "9bf4146e1f122f6618004f93af5bc59c"),
+              "https://github.com/Qubic-Hub/qubic-helper-utils/releases/download/2.0.0/qubic-helper-linux-x64-2_0_0",
+          checksum: "23ce9be3f56897013bec4d3c520c3a95"),
       macOs64: QubicHelperConfigEntry(
-          filename: "qubic-helper-mac-x64-1_0_0",
+          filename: "qubic-helper-mac-x64-2_0_0",
           downloadPath:
-              "https://github.com/Qubic-Hub/qubic-helper-utils/releases/download/1.0.0/qubic-helper-mac-x64-1_0_0",
-          checksum: "bc9b878817bbdc4e0ede62f0869b5ea5"));
+              "https://github.com/Qubic-Hub/qubic-helper-utils/releases/download/2.0.0/qubic-helper-mac-x64-2_0_0",
+          checksum: "6f10fee6f783b866622213ce169c4876"));
 }

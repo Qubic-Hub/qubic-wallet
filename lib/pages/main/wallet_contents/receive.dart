@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:qubic_wallet/components/copyable_text.dart';
 import 'package:qubic_wallet/di.dart';
 import 'package:qubic_wallet/flutter_flow/theme_paddings.dart';
 import 'package:qubic_wallet/helpers/show_snackbar.dart';
@@ -34,6 +35,21 @@ class _ReceiveState extends State<Receive> {
     super.dispose();
   }
 
+  Widget getQRCode() {
+    return Container(
+        color: Colors.white,
+        child: QrImageView(
+            data: widget.item.publicId,
+            version: QrVersions.auto,
+            backgroundColor: Colors.white,
+            errorCorrectionLevel: QrErrorCorrectLevel.H,
+            embeddedImage: const AssetImage('assets/images/logo.png'),
+            embeddedImageStyle: const QrEmbeddedImageStyle(
+              size: Size(80, 80),
+            ),
+            padding: const EdgeInsets.all(ThemePaddings.normalPadding)));
+  }
+
   Widget getScrollView() {
     return SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
@@ -43,7 +59,7 @@ class _ReceiveState extends State<Receive> {
                   child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text("Receive funds in \"${widget.item.name}\"",
+              Text("Receive  in \"${widget.item.name}\"",
                   style: Theme.of(context)
                       .textTheme
                       .displayMedium!
@@ -58,11 +74,11 @@ class _ReceiveState extends State<Receive> {
                       key: _formKey,
                       child: Column(
                         children: [
-                          const SizedBox(height: ThemePaddings.miniPadding),
-                          Text(
-                              "Please share the following Public ID with the sender:",
+                          getQRCode(),
+                          const SizedBox(height: ThemePaddings.bigPadding),
+                          Text("Public ID ",
                               style: Theme.of(context).textTheme.bodyMedium!),
-                          const SizedBox(height: ThemePaddings.miniPadding),
+                          const SizedBox(height: ThemePaddings.normalPadding),
                           Builder(builder: (context) {
                             return Container(
                                 width: double.infinity,
@@ -105,25 +121,9 @@ class _ReceiveState extends State<Receive> {
                                                   ])
                                             ]))));
                           }),
-                          const SizedBox(height: ThemePaddings.smallPadding),
-                          Text("Or show the following QR Code",
-                              style: Theme.of(context).textTheme.bodyMedium!),
-                          const SizedBox(height: ThemePaddings.normalPadding),
-                          Container(
-                              color: Colors.white,
-                              child: QrImageView(
-                                  data: widget.item.publicId,
-                                  version: QrVersions.auto,
-                                  backgroundColor: Colors.white,
-                                  errorCorrectionLevel: QrErrorCorrectLevel.H,
-                                  embeddedImage: const AssetImage(
-                                      'assets/images/logo.png'),
-                                  embeddedImageStyle:
-                                      const QrEmbeddedImageStyle(
-                                    size: Size(80, 80),
-                                  ),
-                                  padding: const EdgeInsets.all(
-                                      ThemePaddings.normalPadding))),
+                          const SizedBox(height: ThemePaddings.miniPadding),
+                          Text("can be used to receive \$QUBIC and assets",
+                              style: Theme.of(context).textTheme.bodySmall!),
                         ],
                       )))
             ],

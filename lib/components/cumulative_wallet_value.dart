@@ -12,15 +12,14 @@ class CumulativeWalletValue extends StatelessWidget {
   final ApplicationStore appStore = getIt<ApplicationStore>();
 
   List<Widget> getShares(BuildContext context) {
-    List<Widget> shares = [];
-    for (var key in appStore.totalShares.keys) {
-      shares.add(QubicAsset(
-          assetName: key,
-          numberOfShares: appStore.totalShares[key],
+    List<Widget> assets = [];
+    for (var asset in appStore.totalShares) {
+      assets.add(QubicAsset(
+          asset: asset,
           style: Theme.of(context).textTheme.displaySmall!.copyWith(
               fontWeight: FontWeight.normal, fontFamily: ThemeFonts.primary)));
     }
-    return shares;
+    return assets;
   }
 
   @override
@@ -33,7 +32,7 @@ class CumulativeWalletValue extends StatelessWidget {
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text("Total wallet value",
+                  Text("Wallet contents",
                       textAlign: TextAlign.center,
                       style: Theme.of(context)
                           .textTheme

@@ -563,13 +563,11 @@ class _SendState extends State<Send> {
       FilledButton(
           onPressed: transferNowHandler,
           child: SizedBox(
-              width: 130,
+              width: 120,
               child: !isLoading
-                  ? const SizedBox(
-                      width: double.infinity,
-                      child: Text("TRANSFER NOW", textAlign: TextAlign.center))
+                  ? const Text("TRANSFER NOW")
                   : Padding(
-                      padding: const EdgeInsets.fromLTRB(57, 0, 57, 0),
+                      padding: const EdgeInsets.fromLTRB(52, 0, 52, 0),
                       child: SizedBox(
                           height: 15,
                           width: 15,

@@ -8,6 +8,7 @@ import 'package:qubic_wallet/di.dart';
 import 'package:qubic_wallet/flutter_flow/theme_paddings.dart';
 import 'package:qubic_wallet/helpers/id_validators.dart';
 import 'package:qubic_wallet/models/qubic_list_vm.dart';
+import 'package:qubic_wallet/pages/main/wallet_contents/assets.dart';
 import 'package:qubic_wallet/pages/main/wallet_contents/explorer/explorer_result_page.dart';
 import 'package:qubic_wallet/pages/main/wallet_contents/receive.dart';
 import 'package:qubic_wallet/pages/main/wallet_contents/reveal_seed/reveal_seed.dart';
@@ -139,6 +140,7 @@ class IdListItem extends StatelessWidget {
 
   Widget getCardMenu(BuildContext context) {
     return PopupMenuButton<CardItem>(
+        icon: Icon(Icons.more_vert, color: Theme.of(context).primaryColor),
         // Callback that sets the selected popup menu item.
         onSelected: (CardItem menuItem) async {
           // setState(() {
@@ -212,22 +214,24 @@ class IdListItem extends StatelessWidget {
       alignment: MainAxisAlignment.spaceEvenly,
       buttonPadding: const EdgeInsets.all(ThemePaddings.miniPadding),
       children: [
-        TextButton(
-          onPressed: () {
-            // Perform some action
-            PersistentNavBarNavigator.pushNewScreen(
-              context,
-              screen: Send(item: item),
-              withNavBar: false, // OPTIONAL VALUE. True by default.
-              pageTransitionAnimation: PageTransitionAnimation.cupertino,
-            );
-          },
-          child: Text('SEND',
-              style: Theme.of(context).textTheme.labelLarge!.copyWith(
-                    color: Theme.of(context).primaryColor,
-                    fontWeight: FontWeight.bold,
-                  )),
-        ),
+        item.amount != null
+            ? TextButton(
+                onPressed: () {
+                  // Perform some action
+                  PersistentNavBarNavigator.pushNewScreen(
+                    context,
+                    screen: Send(item: item),
+                    withNavBar: false, // OPTIONAL VALUE. True by default.
+                    pageTransitionAnimation: PageTransitionAnimation.cupertino,
+                  );
+                },
+                child: Text('SEND',
+                    style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                          color: Theme.of(context).primaryColor,
+                          fontWeight: FontWeight.bold,
+                        )),
+              )
+            : Container(),
         TextButton(
           onPressed: () {
             PersistentNavBarNavigator.pushNewScreen(
@@ -238,18 +242,34 @@ class IdListItem extends StatelessWidget {
             );
           },
           child: Text('RECEIVE',
-              style: Theme.of(context).textTheme.labelLarge!.copyWith(
+              style: Theme.of(context).textTheme.labelMedium!.copyWith(
                     color: Theme.of(context).primaryColor,
                     fontWeight: FontWeight.bold,
                   )),
         ),
+        item.assets.keys.isNotEmpty
+            ? TextButton(
+                child: Text('ASSETS',
+                    style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                          color: Theme.of(context).primaryColor,
+                          fontWeight: FontWeight.bold,
+                        )),
+                onPressed: () {
+                  PersistentNavBarNavigator.pushNewScreen(
+                    context,
+                    screen: Assets(PublicId: item.publicId),
+                    withNavBar: false, // OPTIONAL VALUE. True by default.
+                    pageTransitionAnimation: PageTransitionAnimation.cupertino,
+                  );
+                })
+            : Container()
       ],
     );
   }
 
-  List<Widget> getShares(BuildContext context) {
+  List<Widget> getAssets(BuildContext context) {
     List<Widget> shares = [];
-    for (var key in item.shares.keys) {
+    for (var key in item.assets.keys) {
       shares.add(AnimatedSwitcher(
               duration: const Duration(milliseconds: 500),
               transitionBuilder: (Widget child, Animation<double> animation) {
@@ -257,14 +277,15 @@ class IdListItem extends StatelessWidget {
                 return SizeTransition(sizeFactor: animation, child: child);
                 //return ScaleTransition(scale: animation, child: child);
               },
-              child: QubicAsset(
-                  key: ValueKey<String>(
-                      "qubicAsset${item.publicId}-${key}-${item.shares[key]}"),
-                  assetName: key,
-                  numberOfShares: item.shares[key]?.amount,
-                  style: Theme.of(context).textTheme.displaySmall!.copyWith(
-                      fontWeight: FontWeight.normal,
-                      fontFamily: ThemeFonts.primary)))
+              child: item.assets[key] != null
+                  ? QubicAsset(
+                      key: ValueKey<String>(
+                          "qubicAsset${item.publicId}-${key}-${item.assets[key]}"),
+                      asset: item.assets[key]!,
+                      style: Theme.of(context).textTheme.displaySmall!.copyWith(
+                          fontWeight: FontWeight.normal,
+                          fontFamily: ThemeFonts.primary))
+                  : Container())
 
           // QubicAsset(
           //   assetName: key,
@@ -282,57 +303,64 @@ class IdListItem extends StatelessWidget {
         constraints: const BoxConstraints(minWidth: 400, maxWidth: 500),
         child: Card(
             elevation: 5,
-            child: Padding(
-                padding: const EdgeInsets.fromLTRB(
-                    ThemePaddings.normalPadding,
-                    ThemePaddings.normalPadding,
-                    ThemePaddings.normalPadding,
-                    0),
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text(item.name,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium!
-                              .copyWith(fontFamily: ThemeFonts.secondary)),
-                      FittedBox(
-                          child: AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 500),
-                              transitionBuilder:
-                                  (Widget child, Animation<double> animation) {
-                                //return FadeTransition(opacity: animation, child: child);
-                                return SizeTransition(
-                                    sizeFactor: animation, child: child);
-                                //return ScaleTransition(scale: animation, child: child);
-                              },
-                              child: QubicAmount(
-                                  amount: item.amount,
-                                  key: ValueKey<String>(
-                                      "qubicAmount${item.publicId}-${item.amount}")))),
-                      Container(
-                          width: double.infinity,
-                          alignment: Alignment.centerRight,
-                          child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: getShares(context))),
-                      FittedBox(
-                          child: Text(
-                              item
-                                  .publicId, // "MYSSHMYSSHMYSSHMYSSH.MYSSHMYSSH....",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium!
-                                  .copyWith(fontFamily: ThemeFonts.secondary))),
-                      item.amount != null
-                          ? Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                getButtonBar(context),
-                                getCardMenu(context)
-                              ],
-                            )
-                          : Container()
-                    ]))));
+            child: Column(children: [
+              Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                      ThemePaddings.normalPadding,
+                      ThemePaddings.normalPadding,
+                      ThemePaddings.normalPadding,
+                      ThemePaddings.smallPadding),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(item.name,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium!
+                                .copyWith(fontFamily: ThemeFonts.secondary)),
+                        FittedBox(
+                            child: AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 500),
+                                transitionBuilder: (Widget child,
+                                    Animation<double> animation) {
+                                  //return FadeTransition(opacity: animation, child: child);
+                                  return SizeTransition(
+                                      sizeFactor: animation, child: child);
+                                  //return ScaleTransition(scale: animation, child: child);
+                                },
+                                child: QubicAmount(
+                                    amount: item.amount,
+                                    key: ValueKey<String>(
+                                        "qubicAmount${item.publicId}-${item.amount}")))),
+                        Container(
+                            width: double.infinity,
+                            alignment: Alignment.centerRight,
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: getAssets(context))),
+                        FittedBox(
+                            child: Text(
+                                item
+                                    .publicId, // "MYSSHMYSSHMYSSHMYSSH.MYSSHMYSSH....",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium!
+                                    .copyWith(
+                                        fontFamily: ThemeFonts.secondary))),
+                      ])),
+              Container(
+                  color:
+                      Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+                  child: Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                          ThemePaddings.miniPadding,
+                          ThemePaddings.miniPadding,
+                          ThemePaddings.miniPadding,
+                          ThemePaddings.miniPadding),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [getButtonBar(context), getCardMenu(context)],
+                      )))
+            ])));
   }
 }

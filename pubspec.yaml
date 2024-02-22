@@ -1,7 +1,7 @@
 name: qubic_wallet
 description: A Wallet for the Qubic Network created by Qubic-Hub.com
 publish_to: "none"
-version: 0.8.0
+version: 0.8.5
 
 environment:
   sdk: ">=3.0.0 <4.0.0"

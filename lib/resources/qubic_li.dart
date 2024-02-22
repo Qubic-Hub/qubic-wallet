@@ -128,6 +128,7 @@ class QubicLi {
       appStore.decreasePendingRequests();
       throw Exception('Failed to contact server for submitting transaction.');
     }
+    print(response.body);
     _assert200Response(response.statusCode);
 
     late dynamic parsedJson;
@@ -494,6 +495,7 @@ class QubicLi {
           .toList()
           .cast<QubicAssetDto>();
     } catch (e) {
+      print(e.toString());
       throw Exception(
           'Failed to fetch current assets. Server response is missing required info');
     }
