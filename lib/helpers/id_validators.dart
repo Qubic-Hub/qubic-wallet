@@ -13,7 +13,7 @@ class CustomFormFieldValidators {
       }
 
       if (lessThan == 0) {
-        return "Insufficient funds in ID. ID has no funds";
+        return "Insufficient \$QUBIC in ID. ID has no funds";
       }
 
       String toParse = (valueCandidate as String)
@@ -26,7 +26,35 @@ class CustomFormFieldValidators {
         return "Is not a numeric value";
       }
       if (parsedVal > lessThan) {
-        return "Insufficient funds in ID";
+        return "Insufficient \$QUBIC in ID";
+      }
+
+      return null;
+    };
+  }
+
+  static FormFieldValidator<T> isLessThanParsedAsset<T>({
+    required int lessThan,
+  }) {
+    return (T? valueCandidate) {
+      if (valueCandidate == null) {
+        return null;
+      }
+
+      if (lessThan == 0) {
+        return "Insufficient assets in ID. ";
+      }
+
+      String toParse = valueCandidate as String;
+      toParse.indexOf(" ");
+      toParse = toParse.substring(0, toParse.indexOf(" ")).replaceAll(",", "");
+
+      int? parsedVal = int.tryParse(toParse);
+      if (parsedVal == null) {
+        return "Is not a numeric value";
+      }
+      if (parsedVal > lessThan) {
+        return "Insufficient tokens in ID";
       }
 
       return null;

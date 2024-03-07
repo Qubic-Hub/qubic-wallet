@@ -185,7 +185,7 @@ class _TabSettingsState extends State<TabSettings> {
           ],
         ),
         SettingsSection(
-          title: const Text('Account & Data'),
+          title: const Text('Accounts & Data'),
           tiles: <SettingsTile>[
             SettingsTile.navigation(
               leading: Icon(Icons.logout,

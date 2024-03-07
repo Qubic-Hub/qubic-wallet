@@ -11,7 +11,7 @@ import 'package:qubic_wallet/flutter_flow/theme_paddings.dart';
 import 'package:qubic_wallet/globals.dart';
 import 'package:qubic_wallet/helpers/re_auth_dialog.dart';
 import 'package:qubic_wallet/helpers/show_alert_dialog.dart';
-import 'package:qubic_wallet/helpers/show_snackbar.dart';
+import 'package:qubic_wallet/helpers/global_snack_bar.dart';
 import 'package:qubic_wallet/models/version_number.dart';
 import 'package:qubic_wallet/resources/secure_storage.dart';
 import 'package:qubic_wallet/services/qubic_hub_service.dart';
@@ -35,6 +35,7 @@ class _AboutWalletState extends State<AboutWallet> {
   final SecureStorage secureStorage = getIt<SecureStorage>();
   final QubicHubStore qubicHubStore = getIt<QubicHubStore>();
   final QubicHubService qubicService = getIt<QubicHubService>();
+  final GlobalSnackBar snackBar = getIt<GlobalSnackBar>();
   bool isLoading = false;
   @override
   void initState() {
@@ -50,7 +51,7 @@ class _AboutWalletState extends State<AboutWallet> {
       setState(() {
         isLoading = false;
       });
-      showSnackBar(e.toString().replaceAll("Exception: ", ""));
+      snackBar.show(e.toString().replaceAll("Exception: ", ""), true);
     });
   }
 

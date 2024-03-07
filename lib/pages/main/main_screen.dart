@@ -24,7 +24,7 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  final _controller = PersistentTabController(initialIndex: 0);
+  late final PersistentTabController _controller;
   final _timedController = getIt<TimedController>();
   final QubicHubStore qubicHubStore = getIt<QubicHubStore>();
   final SettingsStore settingsStore = getIt<SettingsStore>();
@@ -33,8 +33,12 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     super.initState();
     _timedController.setupFetchTimer(true);
+    _timedController.setupSlowTimer(true);
+    _controller = PersistentTabController(initialIndex: 0);
 
-    getIt.registerSingleton<PersistentTabController>(_controller);
+    if (!getIt.isRegistered<PersistentTabController>()) {
+      getIt.registerSingleton<PersistentTabController>(_controller);
+    }
   }
 
   List<Widget> _buildScreens() {
@@ -56,7 +60,7 @@ class _MainScreenState extends State<MainScreen> {
       ),
       PersistentBottomNavBarItem(
         icon: const Icon(Icons.compare_arrows),
-        title: ("Transactions"),
+        title: ("Transfers"),
         activeColorPrimary: Theme.of(context).primaryColor,
         inactiveColorPrimary: Theme.of(context).disabledColor,
       ),
@@ -169,11 +173,15 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Observer(builder: (context) {
-      if (UniversalPlatform.isDesktop && !settingsStore.cmdUtilsAvailable) {
-        return DownloadCmdUtils();
-      }
-      return getMain();
-    });
+    if (UniversalPlatform.isDesktop && !settingsStore.cmdUtilsAvailable) {
+      return DownloadCmdUtils();
+    }
+    return getMain();
+    // return Observer(builder: (context) {
+    //   if (UniversalPlatform.isDesktop && !settingsStore.cmdUtilsAvailable) {
+    //     return DownloadCmdUtils();
+    //   }
+    //   return getMain();
+    //});
   }
 }

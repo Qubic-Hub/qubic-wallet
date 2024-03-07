@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:crypto/crypto.dart' as crypto;
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:qubic_wallet/config.dart';
 
 /// A class that handles the secure storage of the wallet. The wallet is stored in the secure storage of the device
 /// The wallet password is encrypted using Argon2
@@ -15,7 +16,7 @@ class QubicJs {
   InAppWebViewController? controller;
   bool validatedFileStream = false;
   final INDEX_MD5 =
-      "04f37ff21095e21b6175408be018f849"; //MD5 of the index.html file to prevent tampering in run time
+      "5d98bc9b31b9ac035bb863cffd037449"; //MD5 of the index.html file to prevent tampering in run time
   initialize() async {
     if (controller != null) {
       debugPrint("QubicJS: Controller already set. No need to initialize");
@@ -23,7 +24,8 @@ class QubicJs {
     }
     InAppWebView = HeadlessInAppWebView(
         onWebViewCreated: (WVcontroller) async {
-          WVcontroller.loadFile(assetFilePath: "assets/qubic_js/index.html");
+          WVcontroller.loadFile(
+              assetFilePath: "assets/qubic_js/index-1-1.html");
 
           controller = WVcontroller;
         },
@@ -35,12 +37,10 @@ class QubicJs {
           isReady = true;
         });
 
-    print("Initializing JS");
     await InAppWebView!.run();
     while (controller == null) {
       sleep(const Duration(milliseconds: 100));
     }
-    print("Initialized!");
   }
 
   bool isReady = false;
@@ -64,13 +64,45 @@ class QubicJs {
     this.controller = controller;
   }
 
+  Future<String> createAssetTransferTransaction(
+      String seed,
+      String destinationId,
+      String assetName,
+      String assetIssuer,
+      int numberOfUnits,
+      int tick) async {
+    await validateFileStreamSignature();
+
+    seed = seed.replaceAll("'", "\\'");
+    destinationId = destinationId.replaceAll("'", "\\'");
+    assetName = assetName.replaceAll("'", "\\'");
+    assetIssuer = assetIssuer.replaceAll("'", "\\'");
+
+    String functionBody =
+        "await qInterface.getAssetTransferTransaction('$seed', '$destinationId', '$assetName', '$assetIssuer', $numberOfUnits, $tick, true)";
+    functionBody = "return $functionBody";
+
+    initialize();
+    CallAsyncJavaScriptResult? result =
+        await controller!.callAsyncJavaScript(functionBody: functionBody);
+
+    if (result == null) {
+      throw Exception("Error trying to create asset transfer transcation");
+    }
+    if (result.error != null) {
+      throw Exception(
+          "Error trying to create asset transfer transcation: ${result.error}");
+    }
+    return result.value['transaction'];
+  }
+
   Future<String> createTransaction(
       String seed, String destinationId, int value, int tick) async {
     await validateFileStreamSignature();
 
     String functionBody =
-        "await qHelper.createTransaction('${seed.replaceAll("'", "\\'")}', '${destinationId.replaceAll("'", "\\'")}', $value, $tick)";
-    functionBody = "return arrayBufferToBase64($functionBody)";
+        "await qInterface.getTransaction('${seed.replaceAll("'", "\\'")}', '${destinationId.replaceAll("'", "\\'")}', $value, $tick,true)";
+    functionBody = "return $functionBody";
 
     initialize();
     CallAsyncJavaScriptResult? result =
@@ -82,12 +114,18 @@ class QubicJs {
     if (result.error != null) {
       throw Exception("Error trying to create transcation: ${result.error}");
     }
-    return result.value;
+    return result.value['transaction'];
   }
 
   Future<void> validateFileStreamSignature() async {
     final jsSource = await controller!.getHtml();
     final checksum = crypto.md5.convert(utf8.encode(jsSource!)).toString();
+
+    if (!Config.checkForTamperedUtils) {
+      debugPrint("JS checksum" + checksum + " vs precalculated " + INDEX_MD5);
+      validatedFileStream = true;
+      return;
+    }
 
     if (checksum != INDEX_MD5) {
       throw Exception(
@@ -102,7 +140,7 @@ class QubicJs {
     await validateFileStreamSignature();
     CallAsyncJavaScriptResult? result = await controller!.callAsyncJavaScript(
         functionBody:
-            "return await qHelper.createPublicId('${seed.replaceAll("'", "\\'")}')");
+            "return await qInterface.getPublicId('${seed.replaceAll("'", "\\'")}')");
 
     if (result == null) {
       throw Exception('Error getting public id from seed: Generic error');

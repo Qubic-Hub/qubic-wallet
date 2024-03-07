@@ -48,8 +48,10 @@ class QubicCmdUtils {
   }
 
   Future<bool> checkUtilitiesChecksum() async {
-    return (await _getFileChecksum(await _getHelperFileFullPath())) ==
-        _getConfig().checksum;
+    String generatedChecksum =
+        await _getFileChecksum(await _getHelperFileFullPath()) ?? "";
+    String configChecksum = _getConfig().checksum;
+    return (generatedChecksum == configChecksum);
   }
 
   Future<bool> canUseUtilities() async {
@@ -93,6 +95,54 @@ class QubicCmdUtils {
     }
 
     return response.publicId!;
+  }
+
+  Future<String> createAssetTransferTransaction(
+      String seed,
+      String destinationId,
+      String assetName,
+      String issuer,
+      int numberOfAssets,
+      int tick) async {
+    await validateFileStreamSignature();
+    final p = await Process.run(
+        await _getHelperFileFullPath(),
+        [
+          'createTransactionAssetMove',
+          seed,
+          destinationId,
+          assetName,
+          issuer,
+          numberOfAssets.toString(),
+          tick.toString()
+        ],
+        runInShell: true);
+    late dynamic parsedJson;
+    try {
+      parsedJson = jsonDecode(p.stdout.toString());
+    } catch (e) {
+      throw Exception(
+          'Failed to create asset transfer transaction. Invalid response from helper');
+    }
+    QubicCmdResponse response;
+    try {
+      response = QubicCmdResponse.fromJson(parsedJson);
+    } catch (e) {
+      throw Exception(
+          'Failed to create asset transfer transaction. Could not parse response from helper');
+    }
+
+    if (!response.status) {
+      throw Exception(
+          'Failed to create asset transfer transaction. Error: ${response.error}');
+    }
+
+    if (response.transaction == null) {
+      throw Exception(
+          'Failed to create asset transfer transaction. Helper returned empty transaction');
+    }
+
+    return response.transaction!;
   }
 
   Future<String> createTransaction(

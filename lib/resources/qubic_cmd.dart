@@ -69,4 +69,24 @@ class QubicCmd {
     }
     throw "OS Not supported";
   }
+
+  Future<String> createAssetTransferTransaction(
+      String seed,
+      String destinationId,
+      String assetName,
+      String assetIssuer,
+      int numberOfAssets,
+      int tick) async {
+    if ((UniversalPlatform.isAndroid) || (UniversalPlatform.isIOS)) {
+      return await qubicJs.createAssetTransferTransaction(
+          seed, destinationId, assetName, assetIssuer, numberOfAssets, tick);
+    }
+    if ((UniversalPlatform.isLinux) ||
+        (UniversalPlatform.isWindows) ||
+        (UniversalPlatform.isMacOS)) {
+      return await qubicCmdUtils.createAssetTransferTransaction(
+          seed, destinationId, assetName, assetIssuer, numberOfAssets, tick);
+    }
+    throw "OS Not supported";
+  }
 }

@@ -92,8 +92,11 @@ class _TabTransfersState extends State<TabTransfers> {
           child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               child: Padding(
-                  padding: const EdgeInsets.fromLTRB(ThemePaddings.smallPadding,
-                      0, ThemePaddings.smallPadding, 0),
+                  padding: const EdgeInsets.fromLTRB(
+                      ThemePaddings.smallPadding,
+                      0,
+                      ThemePaddings.smallPadding,
+                      ThemePaddings.smallPadding),
                   child: Observer(builder: (context) {
                     if (appStore.currentQubicIDs.isEmpty) {
                       return Column(
@@ -104,7 +107,7 @@ class _TabTransfersState extends State<TabTransfers> {
                         alignment: WrapAlignment.center,
                         crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
-                          Text("Epoch Transactions",
+                          Text("Epoch Transfers",
                               style: Theme.of(context)
                                   .textTheme
                                   .displayMedium!

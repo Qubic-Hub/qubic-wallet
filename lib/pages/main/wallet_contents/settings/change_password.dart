@@ -6,7 +6,7 @@ import 'package:qubic_wallet/flutter_flow/theme_paddings.dart';
 import 'package:qubic_wallet/globals.dart';
 import 'package:qubic_wallet/helpers/re_auth_dialog.dart';
 import 'package:qubic_wallet/helpers/show_alert_dialog.dart';
-import 'package:qubic_wallet/helpers/show_snackbar.dart';
+import 'package:qubic_wallet/helpers/global_snack_bar.dart';
 import 'package:qubic_wallet/resources/secure_storage.dart';
 import 'package:qubic_wallet/stores/application_store.dart';
 import 'package:qubic_wallet/stores/settings_store.dart';
@@ -25,7 +25,7 @@ class _ChangePasswordState extends State<ChangePassword> {
   final ApplicationStore appStore = getIt<ApplicationStore>();
   final SettingsStore settingsStore = getIt<SettingsStore>();
   final SecureStorage secureStorage = getIt<SecureStorage>();
-
+  final GlobalSnackBar snackBar = getIt<GlobalSnackBar>();
   @override
   void initState() {
     super.initState();
@@ -130,7 +130,7 @@ class _ChangePasswordState extends State<ChangePassword> {
           isLoading = false;
         });
 
-        showSnackBar("Password changed successfully");
+        snackBar.show("Password changed successfully", true);
       } else {
         showAlertDialog(context, "Error", "Failed to save new password");
         setState(() {

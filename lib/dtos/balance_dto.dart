@@ -1,6 +1,6 @@
 import 'package:qubic_wallet/dtos/transaction_dto.dart';
 
-// This is OBSOLETE
+/// Holds the results from Qubic.li / GetCurrentBalances
 class BalanceDto {
   String? computorIndex;
   bool isComputor;

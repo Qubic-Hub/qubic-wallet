@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:qubic_wallet/components/currency_amount.dart';
 import 'package:qubic_wallet/components/qubic_amount.dart';
 import 'package:qubic_wallet/components/qubic_asset.dart';
 import 'package:qubic_wallet/di.dart';
@@ -12,15 +13,14 @@ class CumulativeWalletValue extends StatelessWidget {
   final ApplicationStore appStore = getIt<ApplicationStore>();
 
   List<Widget> getShares(BuildContext context) {
-    List<Widget> shares = [];
-    for (var key in appStore.totalShares.keys) {
-      shares.add(QubicAsset(
-          assetName: key,
-          numberOfShares: appStore.totalShares[key],
+    List<Widget> assets = [];
+    for (var asset in appStore.totalShares) {
+      assets.add(QubicAsset(
+          asset: asset,
           style: Theme.of(context).textTheme.displaySmall!.copyWith(
               fontWeight: FontWeight.normal, fontFamily: ThemeFonts.primary)));
     }
-    return shares;
+    return assets;
   }
 
   @override
@@ -33,13 +33,51 @@ class CumulativeWalletValue extends StatelessWidget {
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text("Total wallet value",
+                  Text("Wallet contents",
                       textAlign: TextAlign.center,
                       style: Theme.of(context)
                           .textTheme
                           .displayMedium!
                           .copyWith(fontFamily: ThemeFonts.primary)),
                   Observer(builder: (context) {
+                    if (appStore.totalAmountsInUSD == -1) {
+                      return Container();
+                    }
+                    return Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text("Total value: ",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineMedium!
+                                  .copyWith(fontFamily: ThemeFonts.primary)),
+                          CurrencyAmount(
+                              amount: appStore.totalAmountsInUSD,
+                              textStyle: Theme.of(context)
+                                  .textTheme
+                                  .headlineMedium!
+                                  .copyWith(fontFamily: ThemeFonts.primary))
+                        ]);
+                  }),
+                  Observer(builder: (context) {
+                    if (appStore.marketInfo == null) {
+                      return Container();
+                    }
+                    return Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                              "${appStore.marketInfo!.priceAsDecimal.toString()} USD per \$QUBIC",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineSmall!
+                                  .copyWith(fontFamily: ThemeFonts.primary)),
+                        ]);
+                  }),
+                  Observer(builder: (context) {
+                    if (appStore.currentQubicIDs.length == 1) {
+                      return Container();
+                    }
                     return FittedBox(
                         child: QubicAmount(amount: appStore.totalAmounts));
                   }),

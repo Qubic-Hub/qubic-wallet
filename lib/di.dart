@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:qubic_wallet/helpers/global_snack_bar.dart';
 import 'package:qubic_wallet/resources/qubic_cmd.dart';
 import 'package:qubic_wallet/resources/qubic_hub.dart';
 import 'package:qubic_wallet/resources/qubic_js.dart';
@@ -17,6 +18,9 @@ final GetIt getIt = GetIt.instance;
 
 /// Setups Dependency injection
 void setupDI() {
+  //Providers
+  getIt.registerSingleton<GlobalSnackBar>(GlobalSnackBar());
+
   //Stores
   getIt.registerSingleton<ApplicationStore>(ApplicationStore());
   getIt.registerSingleton<SettingsStore>(SettingsStore());

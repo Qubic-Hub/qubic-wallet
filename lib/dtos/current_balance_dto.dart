@@ -1,4 +1,5 @@
 /// A data transfer object representing the current balance of a wallet.
+/// Holds results from Qubic GetNetworkBalances
 class CurrentBalanceDto {
   /// The public ID of the wallet.
   final String publicId;
