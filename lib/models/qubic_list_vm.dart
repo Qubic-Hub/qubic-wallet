@@ -51,12 +51,11 @@ class QubicListVm {
   }
 
   /// Sets the number of shares (without mutation)
-  void setShares(List<QubicAssetDto> newAssets) {
+  void setAssets(List<QubicAssetDto> newAssets) {
     Map<String, QubicAssetDto> mergedAssets = {};
 
     for (int i = 0; i < newAssets.length; i++) {
-      String name =
-          newAssets[i].assetName + "-" + newAssets[i].contractIndex.toString();
+      String name = "${newAssets[i].assetName}-${newAssets[i].contractIndex}";
       if (mergedAssets.containsKey(name)) {
         if (mergedAssets[name]!.tick < newAssets[i].tick) {
           mergedAssets[name] = newAssets[i].clone();

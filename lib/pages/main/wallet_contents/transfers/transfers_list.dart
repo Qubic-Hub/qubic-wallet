@@ -5,7 +5,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:qubic_wallet/di.dart';
 import 'package:qubic_wallet/flutter_flow/theme_paddings.dart';
-import 'package:qubic_wallet/helpers/show_snackbar.dart';
+import 'package:qubic_wallet/helpers/global_snack_bar.dart';
 import 'package:qubic_wallet/stores/application_store.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -20,7 +20,7 @@ class TransfersList extends StatefulWidget {
 class _TransfersListState extends State<TransfersList> {
   final _formKey = GlobalKey<FormBuilderState>();
   final ApplicationStore appStore = getIt<ApplicationStore>();
-
+  final GlobalSnackBar _globalSnackBar = getIt<GlobalSnackBar>();
   String? generatedPublicId;
   @override
   void initState() {
@@ -149,7 +149,7 @@ class _TransfersListState extends State<TransfersList> {
         .where(((element) =>
             element.publicId == generatedPublicId!.replaceAll(",", "_")))
         .isNotEmpty) {
-      showSnackBar('This ID already exists in your wallet');
+      _globalSnackBar.show('This ID already exists in your wallet');
       return;
     }
 

@@ -16,6 +16,7 @@ import 'package:qubic_wallet/dtos/qubic_asset_dto.dart';
 import 'package:qubic_wallet/dtos/transaction_dto.dart';
 import 'package:qubic_wallet/stores/application_store.dart';
 import 'package:qubic_wallet/stores/explorer_store.dart';
+import 'package:qubic_wallet/dtos/market_info_dto.dart';
 
 class QubicLi {
   ApplicationStore appStore = getIt<ApplicationStore>();
@@ -24,6 +25,23 @@ class QubicLi {
   // ignore: unused_field
   String? _refreshToken;
   String? get authenticationToken => _authenticationToken;
+
+  bool _gettingNetworkBalances = false;
+  bool _gettingCurrentBalances = false;
+  bool _gettingNetworkAssets = false;
+  bool _gettingNetworkTransactions = false;
+
+  bool get gettingNetworkBalances => _gettingNetworkBalances;
+  bool get gettingNetworkAssets => _gettingNetworkAssets;
+  bool get gettingNetworkTransactions => _gettingNetworkTransactions;
+  bool get gettingCurrentBalances => _gettingCurrentBalances;
+
+  void resetGetters() {
+    _gettingNetworkBalances = false;
+    _gettingCurrentBalances = false;
+    _gettingNetworkAssets = false;
+    _gettingNetworkTransactions = false;
+  }
 
   static Map<String, String> getHeaders() {
     return {
@@ -214,9 +232,13 @@ class QubicLi {
     return networkOverviewDto;
   }
 
+  ///Gets the transactions from the network
+  ///@param publicIds - List of public IDs to get transactions for
+  ///@return List of transactions
   Future<List<TransactionDto>> getTransactions(List<String> publicIds) async {
     _assertAuthorized();
     appStore.incrementPendingRequests();
+    _gettingNetworkTransactions = true;
     late http.Response response;
     try {
       var headers = QubicLi.getHeaders();
@@ -230,7 +252,9 @@ class QubicLi {
           headers: headers);
 
       appStore.decreasePendingRequests();
+      _gettingNetworkTransactions = false;
     } catch (e) {
+      _gettingNetworkTransactions = false;
       appStore.decreasePendingRequests();
       throw Exception(
           'Failed to contact server for fetching current transactions.');
@@ -258,9 +282,15 @@ class QubicLi {
     return transactions;
   }
 
+  /// Gets the balances from the network
+  /// @param publicIds - List of public IDs to get balances for
+  /// @return List of balances
   Future<List<CurrentBalanceDto>> getNetworkBalances(
       List<String> publicIds) async {
     _assertAuthorized();
+
+    _gettingNetworkBalances = true;
+
     appStore.incrementPendingRequests();
     late http.Response response;
     try {
@@ -275,8 +305,10 @@ class QubicLi {
           headers: headers);
 
       appStore.decreasePendingRequests();
+      _gettingNetworkBalances = false;
     } catch (e) {
       appStore.decreasePendingRequests();
+      _gettingNetworkBalances = false;
       throw Exception(
           'Failed to contact server for fetching current balances.');
     }
@@ -304,9 +336,10 @@ class QubicLi {
   }
 
   // Gets the balances (and transactions) of a list of public IDs
-  Future<List<BalanceDto>> getBalances(List<String> publicIds) async {
+  Future<List<BalanceDto>> getCurrentBalances(List<String> publicIds) async {
     _assertAuthorized();
     appStore.incrementPendingRequests();
+    _gettingCurrentBalances = true;
     late http.Response response;
     try {
       var headers = QubicLi.getHeaders();
@@ -320,8 +353,10 @@ class QubicLi {
           headers: headers);
 
       appStore.decreasePendingRequests();
+      _gettingCurrentBalances = false;
     } catch (e) {
       appStore.decreasePendingRequests();
+      _gettingCurrentBalances = false;
       throw Exception('Failed to contact server for fetching balances.');
     }
     _assert200Response(response.statusCode);
@@ -458,8 +493,12 @@ class QubicLi {
     return resultDto;
   }
 
+  /// Gets the assets from the network
+  /// @param publicIds - List of public IDs to get assets for
+  /// @return List of assets
   Future<List<QubicAssetDto>> getCurrentAssets(List<String> publicIds) async {
     _assertAuthorized();
+    _gettingNetworkAssets = true;
     appStore.incrementPendingRequests();
     late http.Response response;
     try {
@@ -474,8 +513,10 @@ class QubicLi {
           headers: headers);
 
       appStore.decreasePendingRequests();
+      _gettingNetworkAssets = false;
     } catch (e) {
       appStore.decreasePendingRequests();
+      _gettingNetworkAssets = false;
       throw Exception('Failed to contact server for fetching current assets.');
     }
     _assert200Response(response.statusCode);
@@ -495,10 +536,44 @@ class QubicLi {
           .toList()
           .cast<QubicAssetDto>();
     } catch (e) {
-      print(e.toString());
       throw Exception(
           'Failed to fetch current assets. Server response is missing required info');
     }
     return assets;
+  }
+
+  /// Gets the market info from the network
+  Future<MarketInfoDto> getMarketInfo() async {
+    appStore.incrementPendingRequests();
+    late http.Response response;
+    try {
+      var headers = QubicLi.getHeaders();
+      headers.addAll({'Content-Type': 'application/json'});
+      response = await http.get(
+          Uri.https(Config.walletDomain, Config.URL_MarketInfo),
+          headers: headers);
+      appStore.decreasePendingRequests();
+    } catch (e) {
+      appStore.decreasePendingRequests();
+      throw Exception('Failed to contact server for fetching market info.');
+    }
+    _assert200Response(response.statusCode);
+
+    late dynamic parsedJson;
+    late MarketInfoDto marketInfo;
+
+    try {
+      parsedJson = jsonDecode(response.body);
+    } catch (e) {
+      throw Exception('Failed to fetch market info. Could not parse response');
+    }
+    try {
+      marketInfo = MarketInfoDto.fromJson(parsedJson);
+    } catch (e) {
+      rethrow;
+      throw Exception(
+          'Failed to fetch market info. Server response is missing required info');
+    }
+    return marketInfo;
   }
 }

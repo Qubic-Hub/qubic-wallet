@@ -18,10 +18,13 @@ abstract class Config {
   static const URL_ExplorerTickInfo = "Network/Block";
   static const URL_ExplorerIdInfo = "Network/Id";
 
+  static const URL_MarketInfo = "Public/MarketInformation";
+
   static const authUser = "guest@qubic.li";
   static const authPass = "guest13@Qubic.li";
 
   static const fetchEverySeconds = 60;
+  static const fetchEverySecondsSlow = 60 * 5;
 
   static const checkForTamperedUtils = true;
 

@@ -1,6 +1,6 @@
 # Qubic Wallet
 
-This is a fully functional wallet for the Qubic project (https://discord.com/invite/2vDMR8m). It is developed using flutter and compiles successfully for Android. There are some issues with Windows and MacOS builds which will soon be ironed out
+This is a fully functional wallet for the Qubic project (https://discord.com/invite/2vDMR8m). Works great in Android and Windows (check releases pages). Tested and works on MacOS and iOS (no releases provided, you will have to manually compile it).
 
 ## Functionality
 
@@ -9,8 +9,7 @@ This is a fully functional wallet for the Qubic project (https://discord.com/inv
 - [x] Manual resend: Manual resend failed transfers
 - [x] Block Explorer: View complete tick / transacation / ID info
 - [x] Assets: View shares in your accounts
-- [ ] Asset transfers: Allow to send and receive shares - coming soon
-- [ ] Automatic resend: Automatically resend transfers - coming soon
+- [x] Asset transfers: Allow to send and receive shares
 
 ## Other features
 
@@ -25,7 +24,7 @@ This is a fully functional wallet for the Qubic project (https://discord.com/inv
 # Supported Platforms
 
 - [x] Android
-- [x] Windows - ~~coming soon~~
+- [x] Windows
 - [ ] Linux - coming soon
 - [ ] iOS - coming soon
 - [ ] MacOS - coming soon
@@ -35,7 +34,7 @@ This is a fully functional wallet for the Qubic project (https://discord.com/inv
 
 - [x] Android: Signed APK
 - [x] Windows: Executable
-- [ ] Android: App stores - coming soon
+- [ ] Android: App stores
 
 # Security
 

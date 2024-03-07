@@ -16,6 +16,13 @@ mixin _$ApplicationStore on _ApplicationStore, Store {
       (_$totalAmountsComputed ??= Computed<int>(() => super.totalAmounts,
               name: '_ApplicationStore.totalAmounts'))
           .value;
+  Computed<double>? _$totalAmountsInUSDComputed;
+
+  @override
+  double get totalAmountsInUSD => (_$totalAmountsInUSDComputed ??=
+          Computed<double>(() => super.totalAmountsInUSD,
+              name: '_ApplicationStore.totalAmountsInUSD'))
+      .value;
   Computed<List<QubicAssetDto>>? _$totalSharesComputed;
 
   @override
@@ -120,6 +127,22 @@ mixin _$ApplicationStore on _ApplicationStore, Store {
     });
   }
 
+  late final _$marketInfoAtom =
+      Atom(name: '_ApplicationStore.marketInfo', context: context);
+
+  @override
+  MarketInfoDto? get marketInfo {
+    _$marketInfoAtom.reportRead();
+    return super.marketInfo;
+  }
+
+  @override
+  set marketInfo(MarketInfoDto? value) {
+    _$marketInfoAtom.reportWrite(value, super.marketInfo, () {
+      super.marketInfo = value;
+    });
+  }
+
   late final _$biometricSignInAsyncAction =
       AsyncAction('_ApplicationStore.biometricSignIn', context: context);
 
@@ -189,21 +212,13 @@ mixin _$ApplicationStore on _ApplicationStore, Store {
         .run(() => super.setAmountsAndAssets(balances, assets));
   }
 
-  late final _$setAmountsAsyncAction =
-      AsyncAction('_ApplicationStore.setAmounts', context: context);
+  late final _$setCurrentBalancesAsyncAction =
+      AsyncAction('_ApplicationStore.setCurrentBalances', context: context);
 
   @override
-  Future<void> setAmounts(List<BalanceDto> balances) {
-    return _$setAmountsAsyncAction.run(() => super.setAmounts(balances));
-  }
-
-  late final _$setCurrentBalanancesAsyncAction =
-      AsyncAction('_ApplicationStore.setCurrentBalanances', context: context);
-
-  @override
-  Future<void> setCurrentBalanances(List<CurrentBalanceDto> balances) {
-    return _$setCurrentBalanancesAsyncAction
-        .run(() => super.setCurrentBalanances(balances));
+  Future<void> setCurrentBalances(List<BalanceDto> balances) {
+    return _$setCurrentBalancesAsyncAction
+        .run(() => super.setCurrentBalances(balances));
   }
 
   late final _$updateTransactionsAsyncAction =
@@ -260,6 +275,17 @@ mixin _$ApplicationStore on _ApplicationStore, Store {
   }
 
   @override
+  dynamic setMarketInfo(MarketInfoDto newInfo) {
+    final _$actionInfo = _$_ApplicationStoreActionController.startAction(
+        name: '_ApplicationStore.setMarketInfo');
+    try {
+      return super.setMarketInfo(newInfo);
+    } finally {
+      _$_ApplicationStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   dynamic setTransactionFilters(String? qubicId,
       ComputedTransactionStatus? status, TransactionDirection? direction) {
     final _$actionInfo = _$_ApplicationStoreActionController.startAction(
@@ -283,6 +309,17 @@ mixin _$ApplicationStore on _ApplicationStore, Store {
   }
 
   @override
+  void setAmounts(List<CurrentBalanceDto> amounts) {
+    final _$actionInfo = _$_ApplicationStoreActionController.startAction(
+        name: '_ApplicationStore.setAmounts');
+    try {
+      return super.setAmounts(amounts);
+    } finally {
+      _$_ApplicationStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
 currentTick: ${currentTick},
@@ -291,7 +328,9 @@ currentQubicIDs: ${currentQubicIDs},
 currentTransactions: ${currentTransactions},
 transactionFilter: ${transactionFilter},
 pendingRequests: ${pendingRequests},
+marketInfo: ${marketInfo},
 totalAmounts: ${totalAmounts},
+totalAmountsInUSD: ${totalAmountsInUSD},
 totalShares: ${totalShares}
     ''';
   }

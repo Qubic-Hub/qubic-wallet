@@ -9,6 +9,7 @@ import 'package:qubic_wallet/components/tick_refresh.dart';
 import 'package:qubic_wallet/di.dart';
 import 'package:qubic_wallet/flutter_flow/theme_paddings.dart';
 import 'package:qubic_wallet/helpers/platform_helpers.dart';
+import 'package:qubic_wallet/helpers/show_alert_dialog.dart';
 import 'package:qubic_wallet/pages/main/wallet_contents/add_account.dart';
 import 'package:qubic_wallet/stores/application_store.dart';
 import 'package:qubic_wallet/timed_controller.dart';
@@ -43,9 +44,7 @@ class _TabWalletContentsState extends State<TabWalletContents> {
 
     cards.add(Container());
 
-    if (appStore.currentQubicIDs.length > 1) {
-      cards.add(CumulativeWalletValue());
-    }
+    cards.add(CumulativeWalletValue());
 
     for (var element in appStore.currentQubicIDs) {
       cards.add(Padding(
@@ -119,6 +118,27 @@ class _TabWalletContentsState extends State<TabWalletContents> {
                           TickRefresh(),
                           IconButton(
                             onPressed: () {
+                              if (appStore.currentQubicIDs.length >= 15) {
+                                showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: const Text(
+                                            "Max accounts limit reached"),
+                                        content: const Text(
+                                            "You can only have up to 15 Qubic IDs in your wallet. If you need to add another ID please remove one from your existing IDs"),
+                                        actions: [
+                                          TextButton(
+                                              child: const Text("OK"),
+                                              onPressed: () async {
+                                                Navigator.of(context).pop();
+                                              })
+                                        ],
+                                      );
+                                    });
+
+                                return;
+                              }
                               PersistentNavBarNavigator.pushNewScreen(
                                 context,
                                 screen: const AddAccount(),

@@ -9,7 +9,7 @@ import 'package:qubic_wallet/di.dart';
 import 'package:qubic_wallet/flutter_flow/theme_paddings.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:qubic_wallet/globals.dart';
-import 'package:qubic_wallet/helpers/show_snackbar.dart';
+import 'package:qubic_wallet/helpers/global_snack_bar.dart';
 import 'package:qubic_wallet/resources/qubic_cmd_utils.dart';
 import 'package:qubic_wallet/resources/qubic_li.dart';
 import 'package:qubic_wallet/services/qubic_hub_service.dart';
@@ -33,6 +33,8 @@ class _SignInState extends State<SignIn> {
   final SettingsStore settingsStore = getIt<SettingsStore>();
   final QubicHubStore qubicHubStore = getIt<QubicHubStore>();
   final QubicHubService qubicHubService = getIt<QubicHubService>();
+
+  final GlobalSnackBar _globalSnackbar = getIt<GlobalSnackBar>();
   String? signInError;
 
   //FJS
@@ -46,7 +48,7 @@ class _SignInState extends State<SignIn> {
             "USE THIS VERSION AT YOUR OWN RISK\n\nYour current version is outdated and will possibly not work. Please update your wallet version to ${qubicHubStore.minVersion}.\n\nYou can still access your funds and back up your seeds, but other functionality may be broken.  ");
       }
     }, onError: (e) {
-      showSnackBar(e.toString().replaceAll("Exception: ", ""));
+      _globalSnackbar.show(e.toString().replaceAll("Exception: ", ""));
     });
   }
 

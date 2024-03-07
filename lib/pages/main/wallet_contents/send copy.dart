@@ -15,7 +15,7 @@ import 'package:qubic_wallet/helpers/id_validators.dart';
 import 'package:qubic_wallet/helpers/platform_helpers.dart';
 import 'package:qubic_wallet/helpers/re_auth_dialog.dart';
 import 'package:qubic_wallet/helpers/sendTransaction.dart';
-import 'package:qubic_wallet/helpers/show_snackbar.dart';
+import 'package:qubic_wallet/helpers/global_snack_bar.dart';
 import 'package:qubic_wallet/models/qubic_list_vm.dart';
 import 'package:qubic_wallet/stores/application_store.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -42,7 +42,7 @@ class _SendState extends State<Send> {
   final _formKey = GlobalKey<FormBuilderState>();
   final ApplicationStore appStore = getIt<ApplicationStore>();
   final TimedController _timedController = getIt<TimedController>();
-
+  final GlobalSnackBar _globalSnackBar = getIt<GlobalSnackBar>();
   int targetTick = 0;
   int? frozenTargetTick;
   int? frozenCurrentTick;
@@ -154,7 +154,7 @@ class _SendState extends State<Send> {
                 }
                 if (foundSuccess) {
                   Navigator.pop(context);
-                  showSnackBar("Successfully scanned QR Code");
+                  _globalSnackBar.show("Successfully scanned QR Code");
                 }
               },
             ),
@@ -628,7 +628,7 @@ class _SendState extends State<Send> {
     Navigator.pop(context);
     //Timer(const Duration(seconds: 1), () => Navigator.pop(context));
 
-    showSnackBar("Submitted new transaction to Qubic network");
+    _globalSnackBar.show("Submitted new transaction to Qubic network");
 
     setState(() {
       isLoading = false;

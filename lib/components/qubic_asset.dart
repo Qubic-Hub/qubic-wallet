@@ -88,7 +88,7 @@ class QubicAsset extends StatelessWidget {
     int numberOfShares = asset!.ownedAmount ?? asset!.possessedAmount ?? 0;
     String? zeros = numberOfShares > 100
         ? null
-        : numberOfShares > 10
+        : numberOfShares >= 10
             ? "0"
             : numberOfShares > 0
                 ? "00"

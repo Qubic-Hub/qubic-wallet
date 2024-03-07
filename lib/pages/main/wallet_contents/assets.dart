@@ -9,7 +9,7 @@ import 'package:qubic_wallet/components/copyable_text.dart';
 import 'package:qubic_wallet/di.dart';
 import 'package:qubic_wallet/dtos/qubic_asset_dto.dart';
 import 'package:qubic_wallet/flutter_flow/theme_paddings.dart';
-import 'package:qubic_wallet/helpers/show_snackbar.dart';
+import 'package:qubic_wallet/helpers/global_snack_bar.dart';
 import 'package:qubic_wallet/models/qubic_list_vm.dart';
 import 'package:qubic_wallet/pages/main/wallet_contents/transfer_asset.dart';
 import 'package:qubic_wallet/smart_contracts/sc_info.dart';
@@ -29,9 +29,10 @@ class Assets extends StatefulWidget {
 class _AssetsState extends State<Assets> {
   final _formKey = GlobalKey<FormBuilderState>();
   final ApplicationStore appStore = getIt<ApplicationStore>();
-
+  final GlobalSnackBar _globalSnackBar = getIt<GlobalSnackBar>();
   late final QubicListVm accountItem;
   late final reactionDispose;
+
   String? generatedPublicId;
   @override
   void initState() {
@@ -144,7 +145,7 @@ class _AssetsState extends State<Assets> {
         .where(((element) =>
             element.publicId == generatedPublicId!.replaceAll(",", "_")))
         .isNotEmpty) {
-      showSnackBar("This ID already exists in your wallet");
+      _globalSnackBar.show("This ID already exists in your wallet", true);
 
       return;
     }

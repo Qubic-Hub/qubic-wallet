@@ -10,7 +10,7 @@ import 'package:qubic_wallet/di.dart';
 import 'package:qubic_wallet/flutter_flow/theme_paddings.dart';
 import 'package:qubic_wallet/helpers/re_auth_dialog.dart';
 import 'package:qubic_wallet/helpers/sendTransaction.dart';
-import 'package:qubic_wallet/helpers/show_snackbar.dart';
+import 'package:qubic_wallet/helpers/global_snack_bar.dart';
 import 'package:qubic_wallet/helpers/transaction_UI_helpers.dart';
 import 'package:qubic_wallet/models/qubic_list_vm.dart';
 import 'package:qubic_wallet/models/transaction_vm.dart';
@@ -29,6 +29,7 @@ class TransactionItem extends StatelessWidget {
 
   TransactionItem({super.key, required this.item});
   final _timedController = getIt<TimedController>();
+  final _globalSnackBar = getIt<GlobalSnackBar>();
 
   final ApplicationStore appStore = getIt<ApplicationStore>();
 
@@ -68,7 +69,8 @@ class TransactionItem extends StatelessWidget {
                     item.amount,
                     appStore.currentTick + 20);
                 if (success) {
-                  showSnackBar("Submitted new transaction to Qubic network");
+                  _globalSnackBar.show(
+                      "Submitted new transaction to Qubic network", true);
                 }
                 await _timedController.interruptFetchTimer();
 

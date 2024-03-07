@@ -1,11 +1,9 @@
 // ignore_for_file: non_constant_identifier_names
 
-import 'dart:convert';
-import 'dart:math';
-
 import 'package:dargon2_flutter/dargon2_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:qubic_wallet/models/critical_settings.dart';
 import 'package:qubic_wallet/models/qubic_id.dart';
 import 'package:qubic_wallet/models/qubic_list_vm.dart';
 import 'package:qubic_wallet/models/settings.dart';
@@ -40,59 +38,6 @@ class PassAndSalt {
   late String password;
   late Salt salt;
   PassAndSalt({required this.password, required this.salt});
-}
-
-class CriticalSettings {
-  late String? storedPasswordHash;
-  late List<String> publicIds;
-  late List<String> privateSeeds;
-  late List<String> names;
-  String? padding;
-  CriticalSettings(
-      {required this.storedPasswordHash,
-      required this.publicIds,
-      required this.privateSeeds,
-      required this.names,
-      this.padding}) {
-    padding ??= _generateRandomString();
-  }
-
-  String _generateRandomString() {
-    var r = Random();
-    var len = Random().nextInt(128);
-    while (len < 64) {
-      len = Random().nextInt(128);
-    }
-    return String.fromCharCodes(
-        List.generate(len, (index) => r.nextInt(33) + 89));
-  }
-
-  String toJSON() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['storedPasswordHash'] = storedPasswordHash;
-    data['padding'] = padding;
-    data['publicIds'] = publicIds;
-    data['privateSeeds'] = privateSeeds;
-    data['names'] = names;
-
-    return json.encode(data);
-  }
-
-  factory CriticalSettings.fromJSON(String jsonString) {
-    final Map<String, dynamic> data = json.decode(jsonString);
-    final String storedPasswordHash = data['storedPasswordHash'];
-    final List<String> publicIds = List<String>.from(data['publicIds']);
-    final List<String> privateSeeds = List<String>.from(data['privateSeeds']);
-    final List<String> names = List<String>.from(data['names']);
-    final String? padding =
-        data.containsKey("padding") ? data['padding'] : null; //data['padding'];
-    return CriticalSettings(
-        storedPasswordHash: storedPasswordHash,
-        publicIds: publicIds,
-        privateSeeds: privateSeeds,
-        names: names,
-        padding: padding);
-  }
 }
 
 /// A class that handles the secure storage of the wallet. The wallet is stored in the secure storage of the device
@@ -281,12 +226,16 @@ class SecureStorage {
   }
 
   // Adds a new Qubic ID to the secure storage
-  Future<void> addID(QubicId qubicId) async {
+  Future<void> addID(QubicId qubicId,
+      {bool isDerivedFromMnemonic = false}) async {
     CriticalSettings settings = await getCriticalSettings();
 
     settings.privateSeeds.add(qubicId.getPrivateSeed());
     settings.publicIds.add(qubicId.getPublicId());
     settings.names.add(qubicId.getName());
+    if (isDerivedFromMnemonic) {
+      settings.idsGeneratedFromMnemonic.add(qubicId.getPublicId());
+    }
     await storage.write(
         key: SecureStorageKeys.criticalSettings, value: settings.toJSON());
     await updateWalletSettingsPadding(settings.padding!);
@@ -325,6 +274,7 @@ class SecureStorage {
     settings.privateSeeds.removeAt(i);
     settings.publicIds.removeAt(i);
     settings.names.removeAt(i);
+    settings.idsGeneratedFromMnemonic.remove(publicKey);
     await storage.write(
         key: SecureStorageKeys.criticalSettings, value: settings.toJSON());
     await updateWalletSettingsPadding(settings.padding!);

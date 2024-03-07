@@ -8,7 +8,7 @@ import 'package:qubic_wallet/helpers/id_validators.dart';
 import 'package:qubic_wallet/helpers/platform_helpers.dart';
 import 'package:qubic_wallet/helpers/random.dart';
 import 'package:qubic_wallet/helpers/show_alert_dialog.dart';
-import 'package:qubic_wallet/helpers/show_snackbar.dart';
+import 'package:qubic_wallet/helpers/global_snack_bar.dart';
 import 'package:qubic_wallet/pages/main/wallet_contents/add_account_warning.dart';
 import 'package:qubic_wallet/resources/qubic_cmd.dart';
 import 'package:qubic_wallet/stores/application_store.dart';
@@ -26,6 +26,7 @@ class _AddAccountState extends State<AddAccount> {
   final _formKey = GlobalKey<FormBuilderState>();
   final ApplicationStore appStore = getIt<ApplicationStore>();
   final QubicCmd qubicCmd = getIt<QubicCmd>();
+  final GlobalSnackBar _globalSnackBar = getIt<GlobalSnackBar>();
 
   bool detected = false;
   bool generatingId = false;
@@ -72,7 +73,8 @@ class _AddAccountState extends State<AddAccount> {
                   if (foundSuccess) {
                     if (!detected) {
                       Navigator.pop(context);
-                      showSnackBar("Successfully scanned QR Code");
+                      _globalSnackBar.show(
+                          "Successfully scanned QR Code", true);
                     }
                     detected = true;
                   }
@@ -278,8 +280,9 @@ class _AddAccountState extends State<AddAccount> {
                                                                   .currentState
                                                                   ?.instantValue[
                                                               "privateSeed"]));
-                                                  showSnackBar(
-                                                      "Copied to clipboard");
+                                                  _globalSnackBar.show(
+                                                      "Copied to clipboard",
+                                                      true);
                                                 },
                                                 icon: const Icon(Icons.copy))
                                           ])),
@@ -429,7 +432,7 @@ class _AddAccountState extends State<AddAccount> {
         .where(((element) =>
             element.publicId == generatedPublicId!.replaceAll(",", "_")))
         .isNotEmpty) {
-      showSnackBar("This ID already exists in your wallet");
+      _globalSnackBar.show("This ID already exists in your wallet", true);
 
       return;
     }

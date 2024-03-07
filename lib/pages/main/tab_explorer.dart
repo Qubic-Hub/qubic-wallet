@@ -12,7 +12,7 @@ import 'package:qubic_wallet/extensions/asThousands.dart';
 import 'package:qubic_wallet/flutter_flow/theme_paddings.dart';
 import 'package:qubic_wallet/globals.dart';
 import 'package:qubic_wallet/helpers/platform_helpers.dart';
-import 'package:qubic_wallet/helpers/show_snackbar.dart';
+import 'package:qubic_wallet/helpers/global_snack_bar.dart';
 import 'package:qubic_wallet/pages/main/wallet_contents/explorer/explorer_search.dart';
 import 'package:qubic_wallet/resources/qubic_li.dart';
 import 'package:qubic_wallet/stores/application_store.dart';
@@ -35,7 +35,7 @@ class _TabExplorerState extends State<TabExplorer> {
   final ExplorerStore explorerStore = getIt<ExplorerStore>();
   final QubicLi li = getIt<QubicLi>();
   final TimedController _timedController = getIt<TimedController>();
-
+  final GlobalSnackBar _globalSnackBar = getIt<GlobalSnackBar>();
   //Pagination Related
   int numberOfPages = 0;
   int currentPage = 1;
@@ -67,7 +67,7 @@ class _TabExplorerState extends State<TabExplorer> {
         currentPage = 1;
       });
     }, onError: (e) {
-      showSnackBar(e.toString().replaceAll("Exception: ", ""));
+      _globalSnackBar.show(e.toString().replaceAll("Exception: ", ""), true);
       explorerStore.decreasePendingRequests();
     });
   }
