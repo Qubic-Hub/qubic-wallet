@@ -13,6 +13,7 @@ import 'package:qubic_wallet/pages/main/wallet_contents/add_account_warning.dart
 import 'package:qubic_wallet/resources/qubic_cmd.dart';
 import 'package:qubic_wallet/stores/application_store.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:qubic_wallet/timed_controller.dart';
 
 class AddAccount extends StatefulWidget {
   const AddAccount({super.key});
@@ -442,6 +443,7 @@ class _AddAccountState extends State<AddAccount> {
           return AddAccountWarning(onAccept: () async {
             Navigator.pop(context);
             await _saveId();
+            getIt<TimedController>().interruptFetchTimer();
           }, onReject: () async {
             Navigator.pop(context);
           });

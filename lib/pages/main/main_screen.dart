@@ -173,15 +173,15 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (UniversalPlatform.isDesktop && !settingsStore.cmdUtilsAvailable) {
-      return DownloadCmdUtils();
-    }
-    return getMain();
-    // return Observer(builder: (context) {
-    //   if (UniversalPlatform.isDesktop && !settingsStore.cmdUtilsAvailable) {
-    //     return DownloadCmdUtils();
-    //   }
-    //   return getMain();
-    //});
+    // if (UniversalPlatform.isDesktop && !settingsStore.cmdUtilsAvailable) {
+    //   return DownloadCmdUtils();
+    // }
+    // return getMain();
+    return Observer(builder: (context) {
+      if (UniversalPlatform.isDesktop && !settingsStore.cmdUtilsAvailable) {
+        return DownloadCmdUtils();
+      }
+      return getMain();
+    });
   }
 }
