@@ -6,6 +6,8 @@ import 'package:qubic_wallet/flutter_flow/theme_paddings.dart';
 
 import '../stores/application_store.dart';
 
+//TODO: Delete me
+
 class TickIndicator extends StatelessWidget {
   final ApplicationStore appStore = getIt<ApplicationStore>();
 

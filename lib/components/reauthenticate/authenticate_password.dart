@@ -6,6 +6,9 @@ import 'package:qubic_wallet/flutter_flow/theme_paddings.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:qubic_wallet/stores/application_store.dart';
 import 'package:qubic_wallet/stores/settings_store.dart';
+import 'package:qubic_wallet/styles/inputDecorations.dart';
+import 'package:qubic_wallet/styles/textStyles.dart';
+import 'package:qubic_wallet/styles/themed_controls.dart';
 
 class AuthenticatePassword extends StatefulWidget {
   final Function onSuccess;
@@ -37,19 +40,19 @@ class _AuthenticatePasswordState extends State<AuthenticatePassword> {
   }
 
   Widget getCTA() {
-    List<Widget> children = [signInButton()];
+    List<Widget> children = [Expanded(child: signInButton())];
     if (settingsStore.settings.biometricEnabled && !widget.passOnly) {
       children.add(const VerticalDivider());
-      children.add(biometricsButton());
+      children.add(Expanded(child: biometricsButton()));
     }
     return Padding(
-        padding: EdgeInsets.only(bottom: ThemePaddings.normalPadding),
+        padding: const EdgeInsets.only(bottom: ThemePaddings.normalPadding),
         child: Row(
             mainAxisAlignment: MainAxisAlignment.center, children: children));
   }
 
   Widget biometricsButton() {
-    return TextButton(
+    return ThemedControls.transparentButtonBigWithChild(
         onPressed: () async {
           if (isLoading) {
             return;
@@ -69,7 +72,10 @@ class _AuthenticatePasswordState extends State<AuthenticatePassword> {
         },
         child: Padding(
             padding: const EdgeInsets.fromLTRB(
-                ThemePaddings.normalPadding, 0, ThemePaddings.normalPadding, 0),
+                ThemePaddings.normalPadding,
+                ThemePaddings.miniPadding - 1,
+                ThemePaddings.normalPadding,
+                ThemePaddings.miniPadding - 1),
             child: SizedBox(
                 height: 42,
                 width: 42,
@@ -78,7 +84,7 @@ class _AuthenticatePasswordState extends State<AuthenticatePassword> {
   }
 
   Widget signInButton() {
-    return FilledButton(onPressed: () async {
+    return ThemedControls.primaryButtonBigWithChild(onPressed: () async {
       if (isLoading) {
         return;
       }
@@ -112,8 +118,8 @@ class _AuthenticatePasswordState extends State<AuthenticatePassword> {
               ThemePaddings.normalPadding,
             ),
             child: SizedBox(
-                height: 22,
-                width: 22,
+                height: 21,
+                width: 21,
                 child: CircularProgressIndicator(
                     strokeWidth: 2,
                     color: Theme.of(context).colorScheme.inversePrimary)));
@@ -122,7 +128,7 @@ class _AuthenticatePasswordState extends State<AuthenticatePassword> {
             padding: EdgeInsets.all(
               ThemePaddings.normalPadding,
             ),
-            child: Text("Authenticate"));
+            child: SizedBox(height: 21, child: Text("Authenticate")));
       }
     }));
   }
@@ -133,10 +139,11 @@ class _AuthenticatePasswordState extends State<AuthenticatePassword> {
     bool obscuringText = true;
     return FormBuilder(
         key: _formKey,
-        child: Column(children: [
-          Container(
-              alignment: Alignment.center,
-              child: Builder(builder: (context) {
+        child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(child: Builder(builder: (context) {
                 if (signInError == null) {
                   return Container(child: const SizedBox(height: 33));
                 } else {
@@ -151,19 +158,25 @@ class _AuthenticatePasswordState extends State<AuthenticatePassword> {
                                   color: Theme.of(context).colorScheme.error)));
                 }
               })),
-          FormBuilderTextField(
-            name: "password",
-            validator: FormBuilderValidators.compose([
-              FormBuilderValidators.required(),
-            ]),
-            enabled: !isLoading,
-            decoration: const InputDecoration(labelText: 'Wallet password'),
-            obscureText: obscuringText,
-            autocorrect: false,
-            autofillHints: null,
-          ),
-          const SizedBox(height: ThemePaddings.normalPadding),
-          Center(child: getCTA()),
-        ]));
+              Text("Existing wallet password",
+                  style: TextStyles.labelTextNormal),
+              ThemedControls.spacerVerticalMini(),
+              FormBuilderTextField(
+                name: "password",
+                validator: FormBuilderValidators.compose([
+                  FormBuilderValidators.required(),
+                ]),
+                decoration: ThemeInputDecorations.bigInputbox.copyWith(
+                  hintText: "Wallet password",
+                ),
+                style: TextStyles.inputBoxNormalStyle,
+                enabled: !isLoading,
+                obscureText: obscuringText,
+                autocorrect: false,
+                autofillHints: null,
+              ),
+              const SizedBox(height: ThemePaddings.normalPadding),
+              Center(child: getCTA()),
+            ]));
   }
 }

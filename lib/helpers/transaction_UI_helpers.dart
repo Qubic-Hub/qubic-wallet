@@ -1,54 +1,81 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
+import 'package:qubic_wallet/components/change_foreground.dart';
 import 'package:qubic_wallet/flutter_flow/theme_paddings.dart';
 import 'package:qubic_wallet/models/transaction_vm.dart';
+import 'package:qubic_wallet/styles/textStyles.dart';
+import 'package:qubic_wallet/styles/themed_controls.dart';
 
-Widget getEmptyTransactions(BuildContext context, bool hasFiltered) {
+Widget getEmptyTransactions(
+    {required BuildContext context,
+    required bool hasFiltered,
+    int? numberOfFilters,
+    required void Function()? onTap}) {
   Color? transpColor =
       Theme.of(context).textTheme.titleMedium?.color!.withOpacity(0.3);
-  return Center(
-      child: DottedBorder(
-          color: transpColor!,
-          strokeWidth: 3,
-          borderType: BorderType.RRect,
-          radius: const Radius.circular(20),
-          dashPattern: const [10, 5],
-          child: Padding(
-            padding: const EdgeInsets.all(ThemePaddings.bigPadding),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.compare_arrows,
-                    size: 100,
-                    color: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.color!
-                        .withOpacity(0.3)),
-                Text(
-                  hasFiltered
-                      ? "No transcations found matching your filters"
-                      : "No transactions in this epoch \nfor your IDs",
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: ThemePaddings.normalPadding),
-              ],
-            ),
-          )));
+  return Column(children: [
+    ThemedControls.spacerVerticalHuge(),
+    ChangeForeground(
+        color: LightThemeColors.gradient1,
+        child: Image.asset('assets/images/transactions-color-146.png')),
+    ThemedControls.spacerVerticalHuge(),
+    Text(
+      hasFiltered
+          ? "No transactions in this epoch for your accounts match your filters"
+          : "No transactions in this epoch for your accounts",
+      textAlign: TextAlign.center,
+      style: TextStyles.transparentButtonText,
+    ),
+    ThemedControls.spacerVerticalHuge(),
+    if ((hasFiltered) && (numberOfFilters != null))
+      ThemedControls.primaryButtonNormal(
+          onPressed: onTap, text: "Clear active filters")
+  ]);
+
+  // Center(
+  //     child: Image.asset('assets/images/transactions-color-146.png'),
+  //     DottedBorder(
+  //         color: transpColor!,
+  //         strokeWidth: 3,
+  //         borderType: BorderType.RRect,
+  //         radius: const Radius.circular(20),
+  //         dashPattern: const [10, 5],
+  //         child: Padding(
+  //           padding: const EdgeInsets.all(ThemePaddings.bigPadding),
+  //           child: Column(
+  //             mainAxisAlignment: MainAxisAlignment.center,
+  //             children: [
+  //               Icon(Icons.compare_arrows,
+  //                   size: 100,
+  //                   color: Theme.of(context)
+  //                       .textTheme
+  //                       .titleMedium
+  //                       ?.color!
+  //                       .withOpacity(0.3)),
+  //               Text(
+  //                 hasFiltered
+  //                     ? "No transcations found matching your filters"
+  //                     : "No transactions in this epoch \nfor your IDs",
+  //                 textAlign: TextAlign.center,
+  //               ),
+  //               const SizedBox(height: ThemePaddings.normalPadding),
+  //             ],
+  //           ),
+  //         )));
 }
 
 IconData getTransactionStatusIcon(ComputedTransactionStatus status) {
   switch (status) {
     case ComputedTransactionStatus.confirmed:
-      return Icons.playlist_add_check_circle_sharp;
+      return Icons.check_circle;
     case ComputedTransactionStatus.failure:
-      return Icons.highlight_remove_rounded;
+      return Icons.highlight_remove_outlined;
     case ComputedTransactionStatus.invalid:
-      return Icons.error_outline;
+      return Icons.remove_circle;
     case ComputedTransactionStatus.success:
-      return Icons.check_circle_outline_outlined;
+      return Icons.check_circle;
     case ComputedTransactionStatus.pending:
-      return Icons.history_toggle_off_rounded;
+      return Icons.access_time_filled;
   }
 }
 
@@ -57,13 +84,13 @@ Color getTransactionStatusColor(ComputedTransactionStatus status) {
     case ComputedTransactionStatus.confirmed:
       return Colors.blue;
     case ComputedTransactionStatus.failure:
-      return Colors.red;
+      return LightThemeColors.error;
     case ComputedTransactionStatus.invalid:
-      return Colors.red;
+      return LightThemeColors.error;
     case ComputedTransactionStatus.success:
-      return Colors.green;
+      return LightThemeColors.successIncoming;
     case ComputedTransactionStatus.pending:
-      return Colors.grey;
+      return LightThemeColors.pending;
   }
 }
 

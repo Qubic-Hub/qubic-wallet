@@ -10,6 +10,12 @@ import 'package:qubic_wallet/helpers/global_snack_bar.dart';
 import 'package:qubic_wallet/resources/secure_storage.dart';
 import 'package:qubic_wallet/stores/application_store.dart';
 import 'package:qubic_wallet/stores/settings_store.dart';
+import 'package:qubic_wallet/styles/edgeInsets.dart';
+import 'package:qubic_wallet/styles/edgeInsets.dart';
+import 'package:qubic_wallet/styles/inputDecorations.dart';
+import 'package:qubic_wallet/styles/textStyles.dart';
+import 'package:qubic_wallet/styles/themed_controls.dart';
+import 'package:qubic_wallet/timed_controller.dart';
 
 class ChangePassword extends StatefulWidget {
   const ChangePassword({super.key});
@@ -26,6 +32,8 @@ class _ChangePasswordState extends State<ChangePassword> {
   final SettingsStore settingsStore = getIt<SettingsStore>();
   final SecureStorage secureStorage = getIt<SecureStorage>();
   final GlobalSnackBar snackBar = getIt<GlobalSnackBar>();
+  bool showingPassword = false;
+
   @override
   void initState() {
     super.initState();
@@ -45,21 +53,15 @@ class _ChangePasswordState extends State<ChangePassword> {
                   child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text("Change password",
-                  style: Theme.of(context)
-                      .textTheme
-                      .displayMedium!
-                      .copyWith(fontFamily: ThemeFonts.primary)),
-              Container(
-                margin: const EdgeInsets.only(top: 5.0),
+              ThemedControls.pageHeader(
+                headerText: "Change password",
               ),
-              Padding(
-                  padding:
-                      const EdgeInsets.only(top: ThemePaddings.normalPadding),
-                  child: Text(
-                      "Your password is used to access your wallet. Choose a strong password that you can remember.",
-                      style: Theme.of(context).textTheme.bodyMedium)),
+              Text(
+                  "Your password is used to access your wallet. Choose a strong password that you can remember. There is no way to reset your password if you forget it",
+                  style: Theme.of(context).textTheme.bodyMedium),
               const SizedBox(height: ThemePaddings.hugePadding),
+              Text("Set new password", style: TextStyles.labelText),
+              ThemedControls.spacerVerticalMini(),
               FormBuilder(
                   key: _formKey,
                   child: Column(
@@ -72,8 +74,22 @@ class _ChangePasswordState extends State<ChangePassword> {
                           ]),
                           enabled: !isLoading,
                           decoration:
-                              const InputDecoration(labelText: 'New password'),
-                          obscureText: true,
+                              ThemeInputDecorations.bigInputbox.copyWith(
+                            hintText: "New password",
+                            suffixIcon: Padding(
+                                padding: EdgeInsets.only(
+                                    right: ThemePaddings.smallPadding),
+                                child: IconButton(
+                                  icon: Icon(showingPassword
+                                      ? Icons.visibility
+                                      : Icons.visibility_off),
+                                  onPressed: () {
+                                    setState(() =>
+                                        showingPassword = !showingPassword);
+                                  },
+                                )),
+                          ),
+                          obscureText: !showingPassword,
                           autocorrect: false,
                           autofillHints: null,
                         ),
@@ -85,27 +101,35 @@ class _ChangePasswordState extends State<ChangePassword> {
 
   List<Widget> getButtons() {
     return [
-      !isLoading
-          ? TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text("CANCEL",
-                  style: Theme.of(context).textTheme.labelLarge!.copyWith(
-                        color: Theme.of(context).primaryColor,
-                        fontWeight: FontWeight.bold,
-                      )))
-          : Container(),
-      FilledButton(
-          onPressed: saveIdHandler,
-          child: isLoading
-              ? SizedBox(
-                  width: 10,
-                  height: 10,
-                  child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Theme.of(context).colorScheme.inversePrimary))
-              : const Text("SAVE PASSWORD"))
+      Expanded(
+          child: !isLoading
+              ? ThemedControls.transparentButtonBigWithChild(
+                  child: Padding(
+                      padding: const EdgeInsets.all(ThemePaddings.smallPadding),
+                      child: Text("Cancel",
+                          style: TextStyles.transparentButtonText)),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  })
+              : Container()),
+      ThemedControls.spacerHorizontalNormal(),
+      Expanded(
+          child: ThemedControls.primaryButtonBigWithChild(
+              onPressed: saveIdHandler,
+              child: Padding(
+                  padding: const EdgeInsets.all(ThemePaddings.smallPadding + 3),
+                  child: !isLoading
+                      ? Text("Save password",
+                          textAlign: TextAlign.center,
+                          style: TextStyles.primaryButtonText)
+                      : SizedBox(
+                          height: 23,
+                          width: 23,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .inversePrimary)))))
     ];
   }
 
@@ -113,12 +137,16 @@ class _ChangePasswordState extends State<ChangePassword> {
     if (isLoading) {
       return;
     }
+    _formKey.currentState?.validate();
+
+    if (!_formKey.currentState!.isValid) {
+      return;
+    }
 
     var result = await reAuthDialogPassOnly(context);
     if (!result) {
       return;
     }
-    _formKey.currentState?.validate();
     if (_formKey.currentState!.isValid) {
       setState(() {
         isLoading = true;
@@ -157,8 +185,8 @@ class _ChangePasswordState extends State<ChangePassword> {
               backgroundColor: Colors.transparent,
             ),
             body: SafeArea(
-                minimum: const EdgeInsets.fromLTRB(ThemePaddings.normalPadding,
-                    0, ThemePaddings.normalPadding, ThemePaddings.miniPadding),
+                minimum: ThemeEdgeInsets.pageInsets
+                    .copyWith(bottom: ThemePaddings.normalPadding),
                 child: Column(children: [
                   Expanded(child: getScrollView()),
                   Row(

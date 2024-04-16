@@ -1,25 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:qubic_wallet/flutter_flow/theme_paddings.dart';
+import 'package:qubic_wallet/styles/textStyles.dart';
 import 'package:skeleton_text/skeleton_text.dart';
 
+//TODO Delete me
 class QubicAmount extends StatelessWidget {
   final int? amount;
   const QubicAmount({super.key, required this.amount});
 
   Widget getText(BuildContext context, String text, bool opaque) {
     return Text(text,
-        style: opaque
-            ? Theme.of(context)
-                .textTheme
-                .titleMedium!
-                .copyWith(fontFamily: ThemeFonts.primary)
-            : Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontFamily: ThemeFonts.primary,
-                color: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.color!
-                    .withOpacity(0.1)));
+        style: opaque ? TextStyles.qubicAmount : TextStyles.qubicAmountLight);
   }
 
   List<Widget> getUptoThousands(BuildContext context, int units) {
@@ -46,56 +37,23 @@ class QubicAmount extends StatelessWidget {
     if (numberized == "0") {
       numberList.add(Text("000",
           style: isZeroWithValue
-              ? Theme.of(context).textTheme.titleMedium!.copyWith(
-                    fontFamily: ThemeFonts.primary,
-                  )
-              : Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontFamily: ThemeFonts.primary,
-                  color: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.color!
-                      .withOpacity(0.1))));
+              ? TextStyles.qubicAmount
+              : TextStyles.qubicAmountLight));
     } else {
       var preNumber = 3 - numberized.length;
       for (int i = 0; i < preNumber; i++) {
         numberList.add(Text("0",
             style: isZeroWithValue
-                ? Theme.of(context)
-                    .textTheme
-                    .titleMedium!
-                    .copyWith(fontFamily: ThemeFonts.primary)
-                : Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontFamily: ThemeFonts.primary,
-                    color: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.color!
-                        .withOpacity(0.1))));
+                ? TextStyles.qubicAmount
+                : TextStyles.qubicAmountLight));
       }
-      numberList.add(Text(numberized,
-          style: Theme.of(context)
-              .textTheme
-              .titleMedium!
-              .copyWith(fontFamily: ThemeFonts.primary)));
+      numberList.add(Text(numberized, style: TextStyles.qubicAmount));
     }
     if (hasComma) {
       numberList.add(Text(",",
           style: isZeroWithValue
-              ? Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontFamily: ThemeFonts.primary,
-                  color: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.color!
-                      .withOpacity(0.5))
-              : Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontFamily: ThemeFonts.primary,
-                  color: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.color!
-                      .withOpacity(0.1))));
+              ? TextStyles.qubicAmountLight
+              : TextStyles.qubicAmountLight));
     }
     return numberList;
   }
@@ -129,15 +87,8 @@ class QubicAmount extends StatelessWidget {
     if (amount! > 1000000000000) {
       List<Widget> numbers = [];
 
-      numbers.add(Text(amount.toString(),
-          style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                fontFamily: ThemeFonts.primary,
-              )));
-      numbers.add(Text(" \$QUBIC",
-          style: Theme.of(context)
-              .textTheme
-              .titleMedium!
-              .copyWith(fontFamily: ThemeFonts.primary)));
+      numbers.add(Text(amount.toString(), style: TextStyles.qubicAmount));
+      numbers.add(Text(" \$QUBIC", style: TextStyles.qubicAmount));
       return Row(
           mainAxisAlignment: MainAxisAlignment.center, children: numbers);
     }
@@ -180,11 +131,11 @@ class QubicAmount extends StatelessWidget {
     } else {
       numbers.addAll(getUptoThousands(context, units));
     }
-    numbers.add(Text(" \$QUBIC",
-        style: Theme.of(context)
-            .textTheme
-            .titleMedium!
-            .copyWith(fontFamily: ThemeFonts.primary)));
-    return Row(mainAxisAlignment: MainAxisAlignment.center, children: numbers);
+    numbers.add(Text(" \$QUBIC", style: TextStyles.qubicAmountLabel));
+    return Row(
+        crossAxisAlignment: CrossAxisAlignment.baseline,
+        textBaseline: TextBaseline.alphabetic,
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: numbers);
   }
 }

@@ -46,7 +46,7 @@ class PlatformSpecificInitilization {
         titleBarStyle: TitleBarStyle.normal,
         title: 'Qubic Wallet',
         maximumSize: Size(540, 3000),
-        minimumSize: Size(540, 600));
+        minimumSize: Size(320, 600));
     windowManager.waitUntilReadyToShow(windowOptions, () async {
       await windowManager.show();
       await windowManager.focus();

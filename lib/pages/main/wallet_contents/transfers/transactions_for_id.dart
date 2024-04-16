@@ -10,6 +10,8 @@ import 'package:qubic_wallet/models/qubic_list_vm.dart';
 import 'package:qubic_wallet/models/transaction_filter.dart';
 
 import 'package:qubic_wallet/stores/application_store.dart';
+import 'package:qubic_wallet/styles/edgeInsets.dart';
+import 'package:qubic_wallet/styles/themed_controls.dart';
 import 'package:qubic_wallet/timed_controller.dart';
 // ignore: depend_on_referenced_packages
 import 'package:collection/collection.dart';
@@ -140,21 +142,10 @@ class _TransactionsForIdState extends State<TransactionsForId> {
     return Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.transparent,
-          actions: [
-            Expanded(
-                child: Padding(
-              padding: const EdgeInsets.fromLTRB(ThemePaddings.normalPadding, 0,
-                  ThemePaddings.normalPadding, 0),
-              child: Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                      ThemePaddings.hugePadding, 0, 0, 0),
-                  child: TickIndicator()),
-            ))
-          ],
         ),
         body: SafeArea(
-            minimum: const EdgeInsets.fromLTRB(ThemePaddings.normalPadding, 0,
-                ThemePaddings.normalPadding, ThemePaddings.miniPadding),
+            minimum: ThemeEdgeInsets.pageInsets
+                .copyWith(bottom: ThemePaddings.normalPadding),
             child: RefreshIndicator(
               onRefresh: () async {
                 await _timedController.interruptFetchTimer();
@@ -167,19 +158,9 @@ class _TransactionsForIdState extends State<TransactionsForId> {
                         alignment: WrapAlignment.center,
                         crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
-                          Text("Transactions for",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .displayMedium!
-                                  .copyWith(fontFamily: ThemeFonts.primary)),
-                          Text(widget.publicQubicId,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .displaySmall!
-                                  .copyWith(fontFamily: ThemeFonts.primary)),
-                          Container(
-                              margin: const EdgeInsets.all(
-                                  ThemePaddings.miniPadding)),
+                          ThemedControls.pageHeader(
+                              headerText: "Transfers for",
+                              subheaderText: widget.publicQubicId),
                           Observer(builder: (context) {
                             List<Widget> results = [];
                             int added = 0;
@@ -196,8 +177,11 @@ class _TransactionsForIdState extends State<TransactionsForId> {
                               }
                             });
                             if (added == 0) {
-                              results.add(getEmptyTransactions(context,
-                                  appStore.currentTransactions.isNotEmpty));
+                              results.add(getEmptyTransactions(
+                                  context: context,
+                                  hasFiltered: false,
+                                  numberOfFilters: null,
+                                  onTap: () {}));
                             }
                             return Column(children: results);
                           })

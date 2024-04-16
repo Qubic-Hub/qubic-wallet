@@ -5,6 +5,7 @@ import 'package:qubic_wallet/helpers/transaction_UI_helpers.dart';
 import 'package:qubic_wallet/models/transaction_vm.dart';
 import 'package:qubic_wallet/stores/application_store.dart';
 import 'package:qubic_wallet/extensions/darkmode.dart';
+import 'package:qubic_wallet/styles/textStyles.dart';
 
 enum CardItem { delete, rename }
 
@@ -18,27 +19,11 @@ class TransactionStatusItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        padding: const EdgeInsets.all(ThemePaddings.miniPadding),
-        decoration: BoxDecoration(
-          //border: Border.all(color: Colors.grey[300]!),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
-              spreadRadius: 1,
-              blurRadius: 1,
-              offset: const Offset(0, 1),
-            ),
-          ],
-          borderRadius: const BorderRadius.all(Radius.circular(5)),
-          color: context.isDarkMode ? Colors.grey[800] : Colors.grey[50],
-        ),
         child: Row(children: [
-          Icon(getTransactionStatusIcon(item.getStatus()),
-              color: getTransactionStatusColor(item.getStatus())),
-          Text(" ${getTransactionStatusText(item.getStatus())}",
-              style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                  fontWeight: FontWeight.w400,
-                  color: getTransactionStatusColor(item.getStatus())))
-        ]));
+      Icon(getTransactionStatusIcon(item.getStatus()),
+          color: getTransactionStatusColor(item.getStatus())),
+      Text(" ${getTransactionStatusText(item.getStatus())}",
+          style: TextStyles.labelText)
+    ]));
   }
 }

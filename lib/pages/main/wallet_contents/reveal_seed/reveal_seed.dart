@@ -6,6 +6,7 @@ import 'package:qubic_wallet/models/qubic_list_vm.dart';
 import 'package:qubic_wallet/pages/main/wallet_contents/reveal_seed/reveal_seed_contents.dart';
 import 'package:qubic_wallet/pages/main/wallet_contents/reveal_seed/reveal_seed_warning.dart';
 import 'package:qubic_wallet/stores/application_store.dart';
+import 'package:qubic_wallet/styles/edgeInsets.dart';
 
 class RevealSeed extends StatefulWidget {
   final QubicListVm item;
@@ -31,19 +32,6 @@ class _RevealSeedState extends State<RevealSeed> {
     super.dispose();
   }
 
-  Widget getWarning() {
-    return RevealSeedWarning(
-        item: widget.item,
-        onAccept: () async {
-          if (await reAuthDialog(context) == false) {
-            return;
-          }
-          setState(() {
-            hasAccepted = true;
-          });
-        });
-  }
-
   Widget getContents() {
     return RevealSeedContents(item: widget.item);
   }
@@ -55,8 +43,7 @@ class _RevealSeedState extends State<RevealSeed> {
           backgroundColor: Colors.transparent,
         ),
         body: SafeArea(
-            minimum: const EdgeInsets.fromLTRB(ThemePaddings.normalPadding, 0,
-                ThemePaddings.normalPadding, ThemePaddings.miniPadding),
-            child: hasAccepted ? getContents() : getWarning()));
+            minimum: ThemeEdgeInsets.pageInsets,
+            child: Column(children: [Expanded(child: getContents())])));
   }
 }

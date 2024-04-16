@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:qubic_wallet/components/gradient_foreground.dart';
 import 'package:qubic_wallet/di.dart';
+import 'package:qubic_wallet/flutter_flow/theme_paddings.dart';
 import 'package:qubic_wallet/stores/explorer_store.dart';
 
 class ExplorerLoadingIndicator extends StatelessWidget {
@@ -16,9 +18,9 @@ class ExplorerLoadingIndicator extends StatelessWidget {
           return SizedBox(
               width: 10,
               height: 10,
-              child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Theme.of(context).colorScheme.inversePrimary));
+              child: GradientForeground(
+                  child: CircularProgressIndicator(
+                      strokeWidth: 2, color: LightThemeColors.primary)));
         }
         return Container();
       })

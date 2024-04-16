@@ -4,6 +4,8 @@ import 'package:qubic_wallet/components/explorer_result_page_qubic_id/explorer_r
 import 'package:qubic_wallet/components/explorer_results/explorer_result_page_transaction_item.dart';
 import 'package:qubic_wallet/dtos/explorer_id_info_dto.dart';
 import 'package:qubic_wallet/flutter_flow/theme_paddings.dart';
+import 'package:qubic_wallet/styles/textStyles.dart';
+import 'package:qubic_wallet/styles/themed_controls.dart';
 
 class ExplorerResultPageQubicId extends StatelessWidget {
   ExplorerResultPageQubicId({
@@ -20,7 +22,7 @@ class ExplorerResultPageQubicId extends StatelessWidget {
       children: [
         for (var transaction in idInfo.latestTransfers!)
           Padding(
-            padding: const EdgeInsets.only(top: ThemePaddings.normalPadding),
+            padding: const EdgeInsets.only(bottom: ThemePaddings.normalPadding),
             child: ExplorerResultPageTransactionItem(
                 transaction: transaction, isFocused: false, showTick: true),
           ),
@@ -30,15 +32,10 @@ class ExplorerResultPageQubicId extends StatelessWidget {
   }
 
   Widget getTransactionsHeader(BuildContext context) {
-    TextStyle panelTickHeader = Theme.of(context)
-        .textTheme
-        .titleLarge!
-        .copyWith(fontFamily: ThemeFonts.secondary);
-
     if (idInfo.latestTransfers != null) {
       return Text(
           '${idInfo.latestTransfers!.length} transaction${idInfo.latestTransfers!.length != 1 ? 's' : ''} in this epoch',
-          style: panelTickHeader);
+          style: TextStyles.textExtraLargeBold);
     } else {
       return const Text(
         'No transactions for this ID in this epoch',
@@ -49,18 +46,16 @@ class ExplorerResultPageQubicId extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ExplorerResultPageQubicIdHeader(
           idInfo: idInfo,
         ),
-        Container(
-          margin: const EdgeInsets.only(top: 5.0),
-        ),
         getTransactionsHeader(context),
         idInfo.latestTransfers != null && idInfo.latestTransfers!.isNotEmpty
             ? listTransactions()
-            : Container()
+            : Container(),
+        ThemedControls.spacerVerticalSmall(),
       ],
     );
   }

@@ -5,6 +5,9 @@ import 'package:qubic_wallet/components/reauthenticate/authenticate_password.dar
 import 'package:qubic_wallet/di.dart';
 import 'package:qubic_wallet/flutter_flow/theme_paddings.dart';
 import 'package:qubic_wallet/stores/application_store.dart';
+import 'package:qubic_wallet/styles/edgeInsets.dart';
+import 'package:qubic_wallet/styles/textStyles.dart';
+import 'package:qubic_wallet/styles/themed_controls.dart';
 
 class Reauthenticate extends StatefulWidget {
   final bool passwordOnly;
@@ -31,33 +34,74 @@ class _ReauthenticateState extends State<Reauthenticate> {
   }
 
   Widget getHeader() {
-    return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Icon(Icons.lock, size: 100),
-          Text("Please reauthenticate",
+    return Stack(
+      children: [
+        Align(
+          alignment: Alignment.topLeft,
+          child:
+              ThemedControls.pageHeader(headerText: "Authentication required"),
+        ),
+        Align(
+          alignment: Alignment.center,
+          child: Text("Please reauthenticate",
               style: Theme.of(context)
                   .textTheme
                   .displayMedium!
                   .copyWith(fontFamily: ThemeFonts.primary)),
-          //Text("Please authenticate again in order to proceed.")
-        ]);
+        ),
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: Text("Please authenticate again in order to proceed."),
+        )
+      ],
+    );
+    // return Column(
+    //     mainAxisAlignment: MainAxisAlignment.center,
+    //     crossAxisAlignment: CrossAxisAlignment.center,
+    //     children: [
+    //       Icon(Icons.lock, size: 100),
+    //       Text("Please reauthenticate",
+    //           style: Theme.of(context)
+    //               .textTheme
+    //               .displayMedium!
+    //               .copyWith(fontFamily: ThemeFonts.primary)),
+    //       //Text("Please authenticate again in order to proceed.")
+    //     ]);
   }
 
   Widget getContents() {
     return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Expanded(child: getHeader()),
-          AuthenticatePassword(
+      children: [
+        Expanded(
+            child: Align(
+          alignment: Alignment.topLeft,
+          child:
+              ThemedControls.pageHeader(headerText: "Authentication required"),
+        )),
+        Expanded(
+            child: Align(
+          alignment: Alignment.center,
+          child: AuthenticatePassword(
             onSuccess: () {
               Navigator.of(context).pop(true);
             },
             passOnly: widget.passwordOnly,
           ),
-        ]);
+        )),
+        Expanded(
+            child: Align(
+          alignment: Alignment.bottomCenter,
+          child: Container(),
+        ))
+      ],
+    );
+    // return Column(
+    //     mainAxisAlignment: MainAxisAlignment.center,
+    //     crossAxisAlignment: CrossAxisAlignment.center,
+    //     children: [
+    //       Expanded(child: getHeader()),
+
+    //     ]);
   }
 
   @override
@@ -67,8 +111,7 @@ class _ReauthenticateState extends State<Reauthenticate> {
           backgroundColor: Colors.transparent,
         ),
         body: SafeArea(
-            minimum: const EdgeInsets.fromLTRB(ThemePaddings.normalPadding, 0,
-                ThemePaddings.normalPadding, ThemePaddings.miniPadding),
+            minimum: ThemeEdgeInsets.pageInsets,
             child: Center(child: getContents())));
   }
 }

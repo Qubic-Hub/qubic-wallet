@@ -5,7 +5,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+import 'package:persistent_bottom_nav_bar_v2/persistent-tab-view.dart';
 import 'package:qubic_wallet/components/id_list_item_select.dart';
 import 'package:qubic_wallet/di.dart';
 import 'package:qubic_wallet/extensions/asThousands.dart';
@@ -562,20 +562,17 @@ class _SendState extends State<Send> {
           : Container(),
       FilledButton(
           onPressed: transferNowHandler,
-          child: SizedBox(
-              width: 120,
-              child: !isLoading
-                  ? const Text("TRANSFER NOW")
-                  : Padding(
-                      padding: const EdgeInsets.fromLTRB(52, 0, 52, 0),
-                      child: SizedBox(
-                          height: 15,
-                          width: 15,
-                          child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .inversePrimary)))))
+          child: !isLoading
+              ? const Text("TRANSFER NOW")
+              : Padding(
+                  padding: const EdgeInsets.fromLTRB(52, 0, 52, 0),
+                  child: SizedBox(
+                      height: 15,
+                      width: 15,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color:
+                              Theme.of(context).colorScheme.inversePrimary))))
     ];
   }
 

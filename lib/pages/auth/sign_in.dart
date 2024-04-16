@@ -16,6 +16,10 @@ import 'package:qubic_wallet/services/qubic_hub_service.dart';
 import 'package:qubic_wallet/stores/application_store.dart';
 import 'package:qubic_wallet/stores/qubic_hub_store.dart';
 import 'package:qubic_wallet/stores/settings_store.dart';
+import 'package:qubic_wallet/styles/buttonStyles.dart';
+import 'package:qubic_wallet/styles/inputDecorations.dart';
+import 'package:qubic_wallet/styles/textStyles.dart';
+import 'package:qubic_wallet/styles/themed_controls.dart';
 
 class SignIn extends StatefulWidget {
   const SignIn({super.key});
@@ -25,7 +29,7 @@ class SignIn extends StatefulWidget {
   _SignInState createState() => _SignInState();
 }
 
-class _SignInState extends State<SignIn> {
+class _SignInState extends State<SignIn> with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormBuilderState>();
   final LocalAuthentication auth = LocalAuthentication();
 
@@ -37,11 +41,29 @@ class _SignInState extends State<SignIn> {
   final GlobalSnackBar _globalSnackbar = getIt<GlobalSnackBar>();
   String? signInError;
 
+  late final AnimationController _rotationController;
+
+  late final Animation _animation;
+
   //FJS
 
+  double rotation = 3.19911;
   @override
   void initState() {
     super.initState();
+
+    _rotationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 600),
+    );
+
+    //_animation = Tween(begin: 3.19911, end: 5.0).animate(CurvedAnimation(
+    _animation = Tween(begin: 3.39911, end: 3.29911).animate(CurvedAnimation(
+      parent: _rotationController,
+      curve: Curves.fastOutSlowIn,
+    ));
+
+    _rotationController.repeat();
     qubicHubService.loadVersionInfo().then((value) {
       if (qubicHubStore.updateNeeded) {
         showAlertDialog(context, "Update required",
@@ -54,6 +76,7 @@ class _SignInState extends State<SignIn> {
 
   @override
   void dispose() {
+    _rotationController.dispose();
     super.dispose();
   }
 
@@ -134,7 +157,8 @@ class _SignInState extends State<SignIn> {
   }
 
   Widget signInButton() {
-    return FilledButton(onPressed: () async {
+    return Expanded(
+        child: ThemedControls.primaryButtonBigWithChild(onPressed: () async {
       if (isLoading) {
         return;
       }
@@ -170,11 +194,11 @@ class _SignInState extends State<SignIn> {
                     strokeWidth: 2,
                     color: Theme.of(context).colorScheme.inversePrimary)));
       } else {
-        return const Padding(
+        return Padding(
             padding: EdgeInsets.all(ThemePaddings.normalPadding),
-            child: Text("Sign in"));
+            child: Text("Sign in", style: TextStyles.primaryButtonText));
       }
-    }));
+    })));
   }
 
   List<Widget> getCTA() {
@@ -186,148 +210,162 @@ class _SignInState extends State<SignIn> {
     return results;
   }
 
+  Widget getLogo() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const SizedBox(
+            width: 150,
+            //    MediaQuery.of(context).size.height *                                              0.15,
+            child: Image(image: AssetImage('assets/images/logo.png'))),
+        ConstrainedBox(
+            constraints: const BoxConstraints(
+              minHeight: 0.0,
+              minWidth: 10.0,
+              maxHeight: 45.0,
+              maxWidth: 10.0,
+            ),
+            child: Container()),
+        Text("Qubic Wallet",
+            textAlign: TextAlign.center, style: TextStyles.pageTitle),
+        Observer(builder: (BuildContext context) {
+          if (qubicHubStore.versionInfo == null) {
+            return Container();
+          }
+          return Text("Version ${qubicHubStore.versionInfo}",
+              textAlign: TextAlign.center, style: TextStyles.labelText);
+        }),
+      ],
+    );
+  }
+
+  Widget getSignInError() {
+    return Container(
+        alignment: Alignment.center,
+        child: Builder(builder: (context) {
+          if (signInError == null) {
+            return const SizedBox(height: 25);
+          } else {
+            return Padding(
+                padding:
+                    const EdgeInsets.only(bottom: ThemePaddings.smallPadding),
+                child: ThemedControls.errorLabel(signInError!));
+          }
+        }));
+  }
+
+  List<Widget> getLoginForm() {
+    bool obscuringText = true;
+
+    return [
+      getSignInError(),
+      Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text("Unlock wallet", style: TextStyles.labelText),
+          ]),
+      const SizedBox(height: ThemePaddings.smallPadding),
+      FormBuilderTextField(
+        name: "password",
+        validator: FormBuilderValidators.compose([
+          FormBuilderValidators.required(),
+        ]),
+        decoration: ThemeInputDecorations.bigInputbox.copyWith(
+          hintText: "Wallet password",
+        ),
+        enabled: !isLoading,
+        obscureText: obscuringText,
+        autocorrect: false,
+        autofillHints: null,
+      ),
+      const SizedBox(height: ThemePaddings.normalPadding),
+      Observer(builder: (context) {
+        return Center(
+            child: Column(children: [
+          Flex(
+              mainAxisAlignment: MainAxisAlignment.center,
+              direction: Axis.horizontal,
+              children: getCTA()),
+          SizedBox(height: ThemePaddings.normalPadding),
+          SizedBox(
+              width: double.infinity,
+              height: 56,
+              child: ThemedControls.transparentButtonBigWithChild(
+                  child: Padding(
+                      padding: EdgeInsets.all(ThemePaddings.smallPadding),
+                      child: Text("Create new wallet",
+                          style: TextStyles.transparentButtonText)),
+                  onPressed: () {
+                    context.goNamed("createWallet");
+                  }))
+        ]));
+      })
+    ];
+  }
+
   bool isLoading = false;
   @override
   Widget build(BuildContext context) {
-    bool obscuringText = true;
     return Scaffold(
-        body: SafeArea(
-            child: Padding(
-                padding: const EdgeInsets.all(ThemePaddings.bigPadding),
-                child: Container(
-                    constraints: const BoxConstraints.expand(),
-                    child: FormBuilder(
-                        key: _formKey,
-                        child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                  child: Center(
-                                      child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const SizedBox(
-                                      width: 150,
-                                      //    MediaQuery.of(context).size.height *                                              0.15,
-                                      child: Image(
-                                          image: AssetImage(
-                                              'assets/images/logo_qh.png'))),
-                                  Text("qubic wallet",
-                                      textAlign: TextAlign.center,
-                                      style: Theme.of(context)
-                                          .primaryTextTheme
-                                          .displayLarge
-                                          ?.copyWith(
-                                              fontFamily: ThemeFonts.primary,
-                                              color: Theme.of(context)
-                                                  .textTheme
-                                                  .bodyMedium
-                                                  ?.color)),
-                                  Observer(builder: (BuildContext context) {
-                                    if (qubicHubStore.versionInfo == null) {
-                                      return Container();
-                                    }
-                                    return Text(
-                                        "Version ${qubicHubStore.versionInfo}",
-                                        textAlign: TextAlign.center,
-                                        style: Theme.of(context)
-                                            .primaryTextTheme
-                                            .bodySmall
-                                            ?.copyWith(
-                                                fontFamily: ThemeFonts.primary,
-                                                color: Theme.of(context)
-                                                    .textTheme
-                                                    .bodyMedium
-                                                    ?.color));
-                                  }),
-                                  Text(
-                                      "Copyright (C) 2023 - ${DateTime.now().year} Qubic-Hub",
-                                      style: Theme.of(context)
-                                          .primaryTextTheme
-                                          .bodySmall
-                                          ?.copyWith(
-                                              fontFamily: ThemeFonts.primary,
-                                              color: Theme.of(context)
-                                                  .textTheme
-                                                  .bodyMedium
-                                                  ?.color)),
-                                ],
-                              ))),
-                              Container(
-                                  alignment: Alignment.center,
-                                  child: Builder(builder: (context) {
-                                    if (signInError == null) {
-                                      return Container(
-                                          child: const SizedBox(height: 25));
-                                    } else {
-                                      return Padding(
-                                          padding: const EdgeInsets.only(
-                                              bottom:
-                                                  ThemePaddings.smallPadding),
-                                          child: Text(signInError!,
-                                              style: Theme.of(context)
-                                                  .primaryTextTheme
-                                                  .bodySmall
-                                                  ?.copyWith(
-                                                      color: Theme.of(context)
-                                                          .colorScheme
-                                                          .error)));
-                                    }
-                                  })),
-                              Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Text("Sign In",
-                                        style: Theme.of(context)
-                                            .primaryTextTheme
-                                            .titleLarge
-                                            ?.copyWith(
-                                                color: Theme.of(context)
-                                                    .textTheme
-                                                    .bodyMedium
-                                                    ?.color)),
-                                    Padding(
-                                        padding: const EdgeInsets.only(top: 6),
-                                        child: TextButton(
-                                            child: Text(
-                                              "Create new wallet",
-                                              style: Theme.of(context)
-                                                  .primaryTextTheme
-                                                  .titleSmall
-                                                  ?.copyWith(
-                                                      color: Theme.of(context)
-                                                          .colorScheme
-                                                          .secondary),
-                                            ),
-                                            onPressed: () {
-                                              context.goNamed("createWallet");
-                                            }))
-                                  ]),
-                              const SizedBox(
-                                  height: ThemePaddings.smallPadding),
-                              FormBuilderTextField(
-                                name: "password",
-                                validator: FormBuilderValidators.compose([
-                                  FormBuilderValidators.required(),
-                                ]),
-                                enabled: !isLoading,
-                                decoration: const InputDecoration(
-                                    labelText: 'Wallet password'),
-                                obscureText: obscuringText,
-                                autocorrect: false,
-                                autofillHints: null,
-                              ),
-                              const SizedBox(
-                                  height: ThemePaddings.normalPadding),
-                              Observer(builder: (context) {
-                                return Center(
-                                    child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: getCTA()));
-                              })
-                            ]))))));
+        body: Stack(children: [
+      Container(
+          constraints: const BoxConstraints.expand(),
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
+            begin: Alignment(-1.0, 0.0),
+            end: Alignment(1.0, 0.0),
+            transform:
+                GradientRotation(_animation.value), //GradientRotation(3.19911),
+            stops: [
+              0.001,
+              1,
+            ],
+            colors: [
+              LightThemeColors.gradient1,
+              LightThemeColors.gradient2,
+//              Color(0xFFBF0FFF),
+              //            Color(0xFF0F27FF),
+            ],
+          ))),
+      Container(
+          constraints: const BoxConstraints.expand(),
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            stops: const [
+              0.4,
+              0.68,
+              0.8,
+            ],
+            colors: [
+              const Color(0x00FFFFFF),
+              LightThemeColors.strongBackground.withOpacity(0.5),
+              LightThemeColors.strongBackground
+            ],
+          ))),
+      SafeArea(
+          child: Container(
+              child: Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                      0, ThemePaddings.bigPadding, 0, 0),
+                  child: FormBuilder(
+                      key: _formKey,
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Center(child: getLogo()),
+                            ),
+                            Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                    ThemePaddings.bigPadding,
+                                    ThemePaddings.bigPadding,
+                                    ThemePaddings.bigPadding,
+                                    ThemePaddings.bigPadding),
+                                child: Column(children: getLoginForm()))
+                          ]))))),
+    ]));
   }
 }

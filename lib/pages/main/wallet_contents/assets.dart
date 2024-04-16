@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:mobx/mobx.dart';
-import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+import 'package:persistent_bottom_nav_bar_v2/persistent-tab-view.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:qubic_wallet/components/asset_item.dart';
 import 'package:qubic_wallet/components/copyable_text.dart';
@@ -15,6 +15,9 @@ import 'package:qubic_wallet/pages/main/wallet_contents/transfer_asset.dart';
 import 'package:qubic_wallet/smart_contracts/sc_info.dart';
 
 import 'package:qubic_wallet/stores/application_store.dart';
+import 'package:qubic_wallet/styles/edgeInsets.dart';
+import 'package:qubic_wallet/styles/textStyles.dart';
+import 'package:qubic_wallet/styles/themed_controls.dart';
 import 'package:share_plus/share_plus.dart';
 
 class Assets extends StatefulWidget {
@@ -63,9 +66,10 @@ class _AssetsState extends State<Assets> {
     }
 
     List<Widget> output = [];
-    output.add(const Text("QX Issued Tokens"));
+    output.add(Text("QX Issued Tokens", style: TextStyles.sliverCardPreLabel));
     qxAssets.forEach((element) => output.add(getAssetEntry(element)));
-    return Column(children: output);
+    return Column(
+        crossAxisAlignment: CrossAxisAlignment.start, children: output);
   }
 
   Widget getSCAssets() {
@@ -78,9 +82,11 @@ class _AssetsState extends State<Assets> {
 
     List<Widget> output = [];
 
-    output.add(const Text("Smart Contract Shares"));
+    output.add(
+        Text("Smart Contract Shares", style: TextStyles.sliverCardPreLabel));
     scAssets.forEach((element) => output.add(getAssetEntry(element)));
-    return Column(children: output);
+    return Column(
+        crossAxisAlignment: CrossAxisAlignment.start, children: output);
   }
 
   Widget getAssetEntry(QubicAssetDto asset) {
@@ -96,26 +102,17 @@ class _AssetsState extends State<Assets> {
                   child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text("Assets of \"${accountItem.name}\"",
-                  style: Theme.of(context)
-                      .textTheme
-                      .displayMedium!
-                      .copyWith(fontFamily: ThemeFonts.primary)),
-              Container(
-                margin: const EdgeInsets.only(top: 5.0),
-              ),
-              Padding(
-                  padding:
-                      const EdgeInsets.only(top: ThemePaddings.normalPadding),
-                  child: Column(
-                    children: [
-                      Container(color: Colors.red),
-                      getSCAssets(),
-                      const SizedBox(height: ThemePaddings.bigPadding),
-                      getQXAssets(),
-                      const SizedBox(height: ThemePaddings.miniPadding),
-                    ],
-                  ))
+              ThemedControls.pageHeader(
+                  headerText: "Assets",
+                  subheaderText: "of \"${accountItem.name}\""),
+              Column(
+                children: [
+                  getSCAssets(),
+                  ThemedControls.spacerVerticalBig(),
+                  getQXAssets(),
+                  ThemedControls.spacerVerticalMini(),
+                ],
+              )
             ],
           )))
         ]));
@@ -182,8 +179,7 @@ class _AssetsState extends State<Assets> {
               backgroundColor: Colors.transparent,
             ),
             body: SafeArea(
-                minimum: const EdgeInsets.fromLTRB(ThemePaddings.normalPadding,
-                    0, ThemePaddings.normalPadding, ThemePaddings.miniPadding),
+                minimum: ThemeEdgeInsets.pageInsets,
                 child: Column(children: [
                   Expanded(child: getScrollView()),
                 ]))));

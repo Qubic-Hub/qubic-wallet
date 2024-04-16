@@ -4,6 +4,7 @@ import 'package:qubic_wallet/dtos/explorer_transaction_info_dto.dart';
 import 'package:qubic_wallet/helpers/transaction_UI_helpers.dart';
 
 import 'package:qubic_wallet/stores/application_store.dart';
+import 'package:qubic_wallet/styles/textStyles.dart';
 
 enum CardItem { delete, rename }
 
@@ -16,14 +17,11 @@ class ExplorerTransactionStatusItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+    return Row(mainAxisAlignment: MainAxisAlignment.start, children: [
       Icon(getTransactionStatusIcon(item.getStatus()),
-          color: getTransactionStatusColor(item.getStatus())),
+          color: getTransactionStatusColor(item.getStatus()), size: 18),
       Text(" ${getTransactionStatusText(item.getStatus())}",
-          style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                fontWeight: FontWeight.w600,
-                //color: getTransactionStatusColor(item.getStatus())
-              ))
+          style: TextStyles.labelTextSmall)
     ]);
   }
 }

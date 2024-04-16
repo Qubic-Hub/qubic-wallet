@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:qubic_wallet/flutter_flow/theme_paddings.dart';
 import 'package:skeleton_text/skeleton_text.dart';
 
 class CurrencyAmount extends StatelessWidget {

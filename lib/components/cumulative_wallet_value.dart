@@ -7,6 +7,7 @@ import 'package:qubic_wallet/di.dart';
 import 'package:qubic_wallet/flutter_flow/theme_paddings.dart';
 import 'package:qubic_wallet/stores/application_store.dart';
 
+//TODO Delete me
 class CumulativeWalletValue extends StatelessWidget {
   CumulativeWalletValue({super.key});
 
@@ -96,7 +97,7 @@ class CumulativeWalletValue extends StatelessWidget {
                   const Divider(),
                   const SizedBox(height: ThemePaddings.normalPadding),
                   const Text(
-                    "Qubic IDs in wallet",
+                    "Accounts in wallet",
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: ThemePaddings.normalPadding),

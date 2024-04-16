@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:qubic_wallet/di.dart';
+import 'package:qubic_wallet/flutter_flow/theme_paddings.dart';
 import 'package:qubic_wallet/helpers/platform_helpers.dart';
 import 'package:qubic_wallet/timed_controller.dart';
 
@@ -18,13 +19,24 @@ class TickRefresh extends StatelessWidget {
         ? Container()
         : Observer(builder: (context) {
             if (appStore.pendingRequests == 0) {
-              return IconButton(
-                onPressed: () {
-                  _timedController.interruptFetchTimer();
-                },
-                icon: Icon(Icons.refresh,
-                    color: Theme.of(context).colorScheme.primary),
-              );
+              return Ink(
+                  decoration: const ShapeDecoration(
+                    color: LightThemeColors.panelBackground,
+                    shape: CircleBorder(),
+                  ),
+                  child: SizedBox(
+                      width: 32,
+                      height: 32,
+                      child: IconButton(
+                        padding: EdgeInsets.zero,
+                        color: LightThemeColors.cardBackground,
+                        highlightColor: LightThemeColors.extraStrongBackground,
+                        onPressed: () {
+                          _timedController.interruptFetchTimer();
+                        },
+                        icon: const Icon(Icons.refresh,
+                            color: LightThemeColors.primary, size: 20),
+                      )));
             } else {
               return Container();
             }

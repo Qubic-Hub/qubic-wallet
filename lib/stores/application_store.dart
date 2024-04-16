@@ -323,15 +323,17 @@ abstract class _ApplicationStore with Store {
 
   @action
   Future<void> updateTransactions(List<TransactionDto> transactions) async {
-    transactions.forEach((transaction) {
-      var existing = currentTransactions
-          .firstWhereOrNull((element) => element.id == transaction.id);
-      if (existing == null) {
-        currentTransactions.add(TransactionVm.fromTransactionDto(transaction));
+    for (var i = 0; i < transactions.length; i++) {
+      var currentIndex = currentTransactions
+          .indexWhere((element) => element.id == transactions[i].id);
+      if (currentIndex == -1) {
+        currentTransactions
+            .add(TransactionVm.fromTransactionDto(transactions[i]));
       } else {
-        existing.updateContentsFromTransactionDto(transaction);
+        currentTransactions[currentIndex] =
+            TransactionVm.fromTransactionDto(transactions[i]);
       }
-    });
+    }
   }
 
   int getQubicIDsWithPublicId(String publicId) {

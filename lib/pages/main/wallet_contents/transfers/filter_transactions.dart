@@ -9,6 +9,10 @@ import 'package:qubic_wallet/models/transaction_filter.dart';
 import 'package:qubic_wallet/models/transaction_vm.dart';
 
 import 'package:qubic_wallet/stores/application_store.dart';
+import 'package:qubic_wallet/styles/edgeInsets.dart';
+import 'package:qubic_wallet/styles/inputDecorations.dart';
+import 'package:qubic_wallet/styles/textStyles.dart';
+import 'package:qubic_wallet/styles/themed_controls.dart';
 
 class FilterTransactions extends StatefulWidget {
   const FilterTransactions({super.key});
@@ -50,18 +54,13 @@ class _FilterTransactionsState extends State<FilterTransactions> {
   List<Widget> getStatusLabel(ComputedTransactionStatus? e) {
     List<Widget> out = [];
     if (e == null) {
-      out.add(const Icon(Icons.clear));
-      out.add(Text(
-        "Any status",
-        style: Theme.of(context)
-            .textTheme
-            .bodyLarge!
-            .copyWith(fontStyle: FontStyle.italic),
-      ));
+      out.add(
+        Text("Any status", style: TextStyles.textNormal),
+      );
     } else {
       out.add(Icon(getTransactionStatusIcon(e)));
       out.add(const Text(" "));
-      out.add(Text(getTransactionStatusText(e)));
+      out.add(Text(getTransactionStatusText(e), style: TextStyles.textNormal));
     }
     return out;
   }
@@ -69,21 +68,17 @@ class _FilterTransactionsState extends State<FilterTransactions> {
   List<Widget> getDirectionLabel(TransactionDirection? e) {
     List<Widget> out = [];
     if (e == null) {
-      out.add(const Icon(Icons.clear));
       out.add(Text(
         "Any direction",
-        style: Theme.of(context)
-            .textTheme
-            .bodyLarge!
-            .copyWith(fontStyle: FontStyle.italic),
+        style: TextStyles.secondaryTextNormal,
       ));
     } else {
       out.add(Icon(e == TransactionDirection.incoming
           ? Icons.input_outlined
           : Icons.output_outlined));
       out.add(const Text(" "));
-      out.add(
-          Text(e == TransactionDirection.incoming ? "Incoming" : "Outgoing"));
+      out.add(Text(e == TransactionDirection.incoming ? "Incoming" : "Outgoing",
+          style: TextStyles.textNormal));
     }
     return out;
   }
@@ -100,7 +95,6 @@ class _FilterTransactionsState extends State<FilterTransactions> {
             value: e,
             child: Column(children: [
               Row(children: getDirectionLabel(e)),
-              const Divider()
             ])))
         .toList();
 
@@ -113,8 +107,7 @@ class _FilterTransactionsState extends State<FilterTransactions> {
           });
         },
         initialValue: selectedDirection,
-        decoration: InputDecoration(
-          labelText: 'By direction',
+        decoration: ThemeInputDecorations.dropdownBox.copyWith(
           suffix: selectedDirection == null
               ? const SizedBox(height: 10)
               : SizedBox(
@@ -150,10 +143,7 @@ class _FilterTransactionsState extends State<FilterTransactions> {
                       : [
                           Text(
                             "Any direction",
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyLarge!
-                                .copyWith(fontStyle: FontStyle.italic),
+                            style: TextStyles.textNormal,
                           )
                         ]),
             );
@@ -175,8 +165,7 @@ class _FilterTransactionsState extends State<FilterTransactions> {
     List<DropdownMenuItem> items = statusOptions
         .map((e) => DropdownMenuItem<ComputedTransactionStatus?>(
             value: e,
-            child: Column(
-                children: [Row(children: getStatusLabel(e)), const Divider()])))
+            child: Column(children: [Row(children: getStatusLabel(e))])))
         .toList();
 
     return FormBuilderDropdown(
@@ -188,8 +177,7 @@ class _FilterTransactionsState extends State<FilterTransactions> {
           });
         },
         initialValue: selectedStatus,
-        decoration: InputDecoration(
-          labelText: 'By Status',
+        decoration: ThemeInputDecorations.dropdownBox.copyWith(
           suffix: selectedStatus == null
               ? const SizedBox(height: 10)
               : SizedBox(
@@ -224,10 +212,7 @@ class _FilterTransactionsState extends State<FilterTransactions> {
                       : [
                           Text(
                             "Any status",
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyLarge!
-                                .copyWith(fontStyle: FontStyle.italic),
+                            style: TextStyles.secondaryTextNormal,
                           )
                         ]),
             );
@@ -246,84 +231,81 @@ class _FilterTransactionsState extends State<FilterTransactions> {
         value: null,
         child: Column(children: [
           Row(children: [
-            const Icon(Icons.clear),
             Text(
               "Any Qubic ID",
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyLarge!
-                  .copyWith(fontStyle: FontStyle.italic),
+              style: TextStyles.textNormal,
             ),
           ]),
-          const Divider(),
         ])));
     selectableItems.addAll(appStore.currentQubicIDs
         .map((e) => DropdownMenuItem<String?>(
             value: e.publicId,
             child: Column(children: [
               IdListItemSelect(item: e, showAmount: false),
-              const Divider()
             ])))
         .toList());
 
-    return FormBuilderDropdown(
-        name: "qubicId",
-        icon: SizedBox(height: 2, child: Container()),
-        onChanged: (value) {
-          setState(() {
-            selectedQubicId = value;
-          });
-        },
-        initialValue: selectedQubicId,
-        decoration: InputDecoration(
-          labelText: 'By Qubic ID',
-          suffix: selectedQubicId == null
-              ? const SizedBox(height: 12)
-              : SizedBox(
-                  height: 25,
-                  width: 25,
-                  child: IconButton(
-                    padding: const EdgeInsets.all(0),
-                    icon: const Icon(Icons.close, size: 15.0),
-                    onPressed: () {
-                      _formKey.currentState!.fields['qubicId']?.didChange(null);
-                      setState(() {
-                        selectedQubicId = null;
-                      });
-                    },
-                  )),
-          hintText: 'By Qubic ID',
-        ),
-        selectedItemBuilder: (BuildContext context) {
-          return accounts.map<Widget>((QubicListVm? item) {
-            // This is the widget that will be shown when you select an item.
-            // Here custom text style, alignment and layout size can be applied
-            // to selected item string.
+    return ClipRRect(
+        borderRadius: BorderRadius.circular(40.0),
+        clipBehavior: Clip.hardEdge,
+        child: Container(
+            child: FormBuilderDropdown(
+                isDense: true,
+                name: "qubicId",
+                icon: SizedBox(height: 2, child: Container()),
+                onChanged: (value) {
+                  setState(() {
+                    selectedQubicId = value;
+                  });
+                },
+                initialValue: selectedQubicId,
+                decoration: ThemeInputDecorations.dropdownBox.copyWith(
+                  suffix: selectedQubicId == null
+                      ? const SizedBox(height: 12)
+                      : SizedBox(
+                          height: 25,
+                          width: 25,
+                          child: IconButton(
+                            padding: const EdgeInsets.all(0),
+                            icon: const Icon(Icons.close, size: 15.0),
+                            onPressed: () {
+                              _formKey.currentState!.fields['qubicId']
+                                  ?.didChange(null);
+                              setState(() {
+                                selectedQubicId = null;
+                              });
+                            },
+                          )),
+                  hintText: 'By Qubic ID',
+                ),
+                selectedItemBuilder: (BuildContext context) {
+                  return accounts.map<Widget>((QubicListVm? item) {
+                    // This is the widget that will be shown when you select an item.
+                    // Here custom text style, alignment and layout size can be applied
+                    // to selected item string.
 
-            if (item == null) {
-              return Text("Any Qubic ID",
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyLarge!
-                      .copyWith(fontStyle: FontStyle.italic));
-            }
-            return Container(
-                alignment: Alignment.centerLeft,
-                child: Flex(
-                  direction: Axis.horizontal,
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Flexible(child: Text("${item.name} - ")),
-                    Expanded(
-                        child: Text(
-                      item.publicId,
-                      overflow: TextOverflow.ellipsis,
-                    )),
-                  ],
-                ));
-          }).toList();
-        },
-        items: selectableItems);
+                    if (item == null) {
+                      return Text("Any Qubic ID",
+                          style: TextStyles.secondaryTextNormal);
+                    }
+                    return Container(
+                        alignment: Alignment.centerLeft,
+                        child: Flex(
+                          direction: Axis.horizontal,
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            Flexible(
+                                child: Text("${item.name} - ",
+                                    style: TextStyles.textNormal)),
+                            Expanded(
+                                child: Text(item.publicId,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyles.secondaryTextSmall)),
+                          ],
+                        ));
+                  }).toList();
+                },
+                items: selectableItems)));
   }
 
   Widget getScrollView() {
@@ -335,11 +317,7 @@ class _FilterTransactionsState extends State<FilterTransactions> {
                   child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text("Filter transactions",
-                  style: Theme.of(context)
-                      .textTheme
-                      .displayMedium!
-                      .copyWith(fontFamily: ThemeFonts.primary)),
+              ThemedControls.pageHeader(headerText: "Filter transactions"),
               appStore.transactionFilter!.totalActiveFilters > 0
                   ? TextButton(
                       onPressed: () {
@@ -380,19 +358,26 @@ class _FilterTransactionsState extends State<FilterTransactions> {
 
   List<Widget> getButtons() {
     return [
-      !isLoading
-          ? TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text("CANCEL",
-                  style: Theme.of(context).textTheme.labelLarge!.copyWith(
-                        color: Theme.of(context).primaryColor,
-                        fontWeight: FontWeight.bold,
-                      )))
-          : Container(),
-      FilledButton(
-          onPressed: saveIdHandler, child: const Text("PROCEED WITH FILTERS"))
+      Expanded(
+          child: !isLoading
+              ? ThemedControls.transparentButtonBigWithChild(
+                  child: Padding(
+                      padding:
+                          const EdgeInsets.all(ThemePaddings.smallPadding + 3),
+                      child: Text("Cancel",
+                          style: TextStyles.transparentButtonText)),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  })
+              : Container()),
+      ThemedControls.spacerHorizontalNormal(),
+      Expanded(
+          child: ThemedControls.primaryButtonBigWithChild(
+              child: Padding(
+                  padding: const EdgeInsets.all(ThemePaddings.smallPadding + 3),
+                  child: Text("Proceed with filters",
+                      style: TextStyles.primaryButtonText)),
+              onPressed: saveIdHandler))
     ];
   }
 
@@ -425,8 +410,8 @@ class _FilterTransactionsState extends State<FilterTransactions> {
               backgroundColor: Colors.transparent,
             ),
             body: SafeArea(
-                minimum: const EdgeInsets.fromLTRB(ThemePaddings.normalPadding,
-                    0, ThemePaddings.normalPadding, ThemePaddings.miniPadding),
+                minimum: ThemeEdgeInsets.pageInsets
+                    .copyWith(bottom: ThemePaddings.normalPadding),
                 child: Column(children: [
                   Expanded(child: getScrollView()),
                   Row(

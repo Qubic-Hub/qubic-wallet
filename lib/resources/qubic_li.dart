@@ -275,6 +275,7 @@ class QubicLi {
           .map((e) => TransactionDto.fromJson(e))
           .toList()
           .cast<TransactionDto>();
+      transactions.sort((a, b) => a.targetTick.compareTo(b.targetTick));
     } catch (e) {
       throw Exception(
           'Failed to fetch current transactions. Server response is missing required info');

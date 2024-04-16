@@ -3,6 +3,7 @@ import 'package:qubic_wallet/di.dart';
 import 'package:qubic_wallet/flutter_flow/theme_paddings.dart';
 import 'package:qubic_wallet/models/transaction_vm.dart';
 import 'package:qubic_wallet/stores/application_store.dart';
+import 'package:qubic_wallet/styles/textStyles.dart';
 
 enum CardItem { delete, rename }
 
@@ -46,14 +47,15 @@ class TransactionDirectionItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        padding: const EdgeInsets.all(ThemePaddings.miniPadding),
+        decoration: BoxDecoration(
+            color: Theme.of(context).primaryColor.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(30)),
+        padding: const EdgeInsets.symmetric(
+            vertical: ThemePaddings.miniPadding,
+            horizontal: ThemePaddings.smallPadding),
         child: Row(children: [
-          Icon(getIcon()),
-          Text(" ${getText()}",
-              style: Theme.of(context)
-                  .textTheme
-                  .titleLarge!
-                  .copyWith(fontFamily: ThemeFonts.primary))
+          Icon(getIcon(), size: 16),
+          Text(" ${getText()}", style: TextStyles.labelTextSmall)
         ]));
   }
 }

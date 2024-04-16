@@ -3,12 +3,17 @@ import 'package:flutter/services.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:qubic_wallet/components/copyable_text.dart';
+import 'package:qubic_wallet/components/toggleable_qr_code.dart';
 import 'package:qubic_wallet/di.dart';
 import 'package:qubic_wallet/flutter_flow/theme_paddings.dart';
+import 'package:qubic_wallet/helpers/copy_to_clipboard.dart';
 import 'package:qubic_wallet/helpers/global_snack_bar.dart';
 import 'package:qubic_wallet/models/qubic_list_vm.dart';
 
 import 'package:qubic_wallet/stores/application_store.dart';
+import 'package:qubic_wallet/styles/edgeInsets.dart';
+import 'package:qubic_wallet/styles/textStyles.dart';
+import 'package:qubic_wallet/styles/themed_controls.dart';
 import 'package:share_plus/share_plus.dart';
 
 class Receive extends StatefulWidget {
@@ -21,9 +26,8 @@ class Receive extends StatefulWidget {
 }
 
 class _ReceiveState extends State<Receive> {
-  final _formKey = GlobalKey<FormBuilderState>();
   final ApplicationStore appStore = getIt<ApplicationStore>();
-  final GlobalSnackBar _globalSnackBar = getIt<GlobalSnackBar>();
+
   String? generatedPublicId;
   @override
   void initState() {
@@ -59,73 +63,44 @@ class _ReceiveState extends State<Receive> {
                   child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text("Receive  in \"${widget.item.name}\"",
-                  style: Theme.of(context)
-                      .textTheme
-                      .displayMedium!
-                      .copyWith(fontFamily: ThemeFonts.primary)),
-              Container(
-                margin: const EdgeInsets.only(top: 5.0),
-              ),
-              Padding(
-                  padding:
-                      const EdgeInsets.only(top: ThemePaddings.normalPadding),
-                  child: FormBuilder(
-                      key: _formKey,
-                      child: Column(
-                        children: [
-                          getQRCode(),
-                          const SizedBox(height: ThemePaddings.bigPadding),
-                          Text("Public ID ",
-                              style: Theme.of(context).textTheme.bodyMedium!),
-                          const SizedBox(height: ThemePaddings.normalPadding),
-                          Builder(builder: (context) {
-                            return Container(
-                                width: double.infinity,
-                                child: Card(
-                                    child: Padding(
-                                        padding: const EdgeInsets.all(
-                                            ThemePaddings.smallPadding),
-                                        child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Flex(
-                                                  direction: Axis.horizontal,
-                                                  children: [
-                                                    Flexible(
-                                                        child: SelectableText(
-                                                            widget
-                                                                .item.publicId,
-                                                            style: Theme.of(
-                                                                    context)
-                                                                .textTheme
-                                                                .bodyMedium!)),
-                                                    IconButton(
-                                                        onPressed: () async {
-                                                          await Clipboard.setData(
-                                                              ClipboardData(
-                                                                  text: widget
-                                                                      .item
-                                                                      .publicId));
-                                                        },
-                                                        icon: const Icon(
-                                                            Icons.copy)),
-                                                    IconButton(
-                                                        onPressed: () async {
-                                                          Share.share(
-                                                              '${widget.item.publicId}}');
-                                                        },
-                                                        icon: const Icon(
-                                                            Icons.share))
-                                                  ])
-                                            ]))));
-                          }),
-                          const SizedBox(height: ThemePaddings.miniPadding),
-                          Text("can be used to receive \$QUBIC and assets",
-                              style: Theme.of(context).textTheme.bodySmall!),
-                        ],
-                      )))
+              ThemedControls.pageHeader(
+                  headerText: "Receive funds and assets",
+                  subheaderText: "in \"${widget.item.name}\""),
+              ThemedControls.card(
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                    Text("Qubic Address", style: TextStyles.lightGreyTextSmall),
+                    ThemedControls.spacerVerticalMini(),
+                    Text(widget.item.publicId),
+                    ThemedControls.spacerVerticalNormal(),
+                    Row(children: [
+                      ThemedControls.primaryButtonNormal(
+                          onPressed: () {
+                            copyToClipboard(widget.item.publicId);
+                          },
+                          text: "Copy address",
+                          icon: !LightThemeColors.shouldInvertIcon
+                              ? ThemedControls.invertedColors(
+                                  child: Image.asset(
+                                      "assets/images/Group 2400.png"))
+                              : Image.asset("assets/images/Group 2400.png")),
+                      ThemedControls.spacerHorizontalSmall(),
+                      ThemedControls.transparentButtonNormal(
+                          onPressed: () {
+                            Share.share('${widget.item.publicId}');
+                          },
+                          text: "Share",
+                          icon: LightThemeColors.shouldInvertIcon
+                              ? ThemedControls.invertedColors(
+                                  child: Image.asset(
+                                      "assets/images/Group 2389.png"))
+                              : Image.asset("assets/images/Group 2389.png"))
+                    ])
+                  ])),
+              ThemedControls.spacerVerticalSmall(),
+              ToggleableQRCode(
+                  qRCodeData: widget.item.publicId, expanded: false),
             ],
           )))
         ]));
@@ -143,43 +118,6 @@ class _ReceiveState extends State<Receive> {
     ];
   }
 
-  void saveIdHandler() async {
-    _formKey.currentState?.validate();
-    if (!_formKey.currentState!.isValid) {
-      return;
-    }
-
-    //Prevent duplicates
-
-    if (appStore.currentQubicIDs
-        .where(((element) =>
-            element.publicId == generatedPublicId!.replaceAll(",", "_")))
-        .isNotEmpty) {
-      _globalSnackBar.show("This ID already exists in your wallet");
-
-      return;
-    }
-
-    setState(() {
-      isLoading = true;
-    });
-    appStore.addId(
-      _formKey.currentState?.instantValue["accountName"] as String,
-      generatedPublicId!,
-      _formKey.currentState?.instantValue["privateSeed"] as String,
-    );
-
-    setState(() {
-      isLoading = false;
-    });
-
-    Navigator.pop(context);
-  }
-
-  TextEditingController privateSeed = TextEditingController();
-
-  bool showAccountInfoTooltip = false;
-  bool showSeedInfoTooltip = false;
   bool isLoading = false;
   @override
   Widget build(BuildContext context) {
@@ -192,8 +130,7 @@ class _ReceiveState extends State<Receive> {
               backgroundColor: Colors.transparent,
             ),
             body: SafeArea(
-                minimum: const EdgeInsets.fromLTRB(ThemePaddings.normalPadding,
-                    0, ThemePaddings.normalPadding, ThemePaddings.miniPadding),
+                minimum: ThemeEdgeInsets.pageInsets,
                 child: Column(children: [
                   Expanded(child: getScrollView()),
                 ]))));

@@ -28,7 +28,7 @@ dependencies:
   flex_color_scheme:
   dargon2_flutter: ^3.3.0
   flutter_form_builder: ^9.1.0
-  persistent_bottom_nav_bar: ^5.0.2
+  persistent_bottom_nav_bar_v2: ^4.2.8
   dotted_border: ^2.0.0+3
   flutter_inappwebview: ^6.0.0-beta.24+1
   skeleton_text: ^3.0.1

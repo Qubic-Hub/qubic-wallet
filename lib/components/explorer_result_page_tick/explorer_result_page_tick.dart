@@ -4,6 +4,9 @@ import 'package:qubic_wallet/components/explorer_result_page_tick/explorer_resul
 import 'package:qubic_wallet/components/explorer_results/explorer_result_page_transaction_item.dart';
 import 'package:qubic_wallet/dtos/explorer_tick_info_dto.dart';
 import 'package:qubic_wallet/flutter_flow/theme_paddings.dart';
+import 'package:qubic_wallet/styles/edgeInsets.dart';
+import 'package:qubic_wallet/styles/textStyles.dart';
+import 'package:qubic_wallet/styles/themed_controls.dart';
 
 enum RequestViewChangeType { tick, publicId }
 
@@ -25,12 +28,13 @@ class ExplorerResultPageTick extends StatelessWidget {
       mainAxisSize: MainAxisSize.max,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        ThemedControls.spacerVerticalNormal(),
         for (var transaction in tickInfo.transactions!)
           focusedTransactionId == null ||
                   focusedTransactionId! == transaction.id
               ? Padding(
-                  padding:
-                      const EdgeInsets.only(top: ThemePaddings.normalPadding),
+                  padding: const EdgeInsets.only(
+                      bottom: ThemePaddings.normalPadding),
                   child: ExplorerResultPageTransactionItem(
                     transaction: transaction,
                     isFocused: focusedTransactionId == null
@@ -45,10 +49,7 @@ class ExplorerResultPageTick extends StatelessWidget {
   }
 
   Widget getTransactionsHeader(BuildContext context) {
-    TextStyle panelTickHeader = Theme.of(context)
-        .textTheme
-        .titleLarge!
-        .copyWith(fontFamily: ThemeFonts.secondary);
+    TextStyle panelTickHeader = TextStyles.textExtraLargeBold;
 
     if (tickInfo.transactions != null) {
       if (focusedTransactionId == null) {
@@ -56,38 +57,33 @@ class ExplorerResultPageTick extends StatelessWidget {
             '${tickInfo.transactions!.length} transaction${tickInfo.transactions!.length != 1 ? 's' : ''} in tick',
             style: panelTickHeader);
       } else {
-        return Column(children: [
+        return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(
-            'Showing 1 of \n ${tickInfo.transactions!.length} transaction${tickInfo.transactions!.length != 1 ? 's' : ''} in tick',
+            'Showing 1 of ${tickInfo.transactions!.length} transaction${tickInfo.transactions!.length != 1 ? 's' : ''} in tick',
             style: panelTickHeader,
             textAlign: TextAlign.center,
           ),
-          tickInfo.transactions!.length > 1
-              ? TextButton(
-                  child: Text("show all",
-                      style: Theme.of(context)
-                          .primaryTextTheme
-                          .titleSmall
-                          ?.copyWith(
-                              color: Theme.of(context).colorScheme.secondary)),
-                  onPressed: () {
-                    onRequestViewChange!(
-                        RequestViewChangeType.tick, tickInfo.tick, null);
-                  })
-              : Container()
+          Padding(
+              padding: const EdgeInsets.only(top: ThemePaddings.smallPadding),
+              child: tickInfo.transactions!.length > 1
+                  ? ThemedControls.primaryButtonSmall(
+                      text: "Show all",
+                      onPressed: () {
+                        onRequestViewChange!(
+                            RequestViewChangeType.tick, tickInfo.tick, null);
+                      })
+                  : Container())
         ]);
       }
     } else {
-      return const Text(
-        'No transactions in this tick',
-      );
+      return Text('No transactions in this tick', style: panelTickHeader);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ExplorerResultPageTickHeader(
             tickInfo: tickInfo,
@@ -97,13 +93,17 @@ class ExplorerResultPageTick extends StatelessWidget {
                           RequestViewChangeType.tick, tick, null)
                     }
                 : null),
-        Container(
-          margin: const EdgeInsets.only(top: 5.0),
-        ),
-        getTransactionsHeader(context),
-        tickInfo.transactions != null && tickInfo.transactions!.isNotEmpty
-            ? listTransactions()
-            : Container()
+        Padding(
+            padding: EdgeInsets.only(
+                left: ThemeEdgeInsets.pageInsets.left,
+                right: ThemeEdgeInsets.pageInsets.right),
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              getTransactionsHeader(context),
+              tickInfo.transactions != null && tickInfo.transactions!.isNotEmpty
+                  ? listTransactions()
+                  : Container()
+            ])),
       ],
     );
   }

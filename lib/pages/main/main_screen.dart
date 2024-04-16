@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:qubic_wallet/components/change_foreground.dart';
+import 'package:qubic_wallet/components/gradient_foreground.dart';
 import 'package:qubic_wallet/di.dart';
 import 'package:qubic_wallet/flutter_flow/theme_paddings.dart';
 import 'package:qubic_wallet/models/settings.dart';
@@ -8,10 +10,12 @@ import 'package:qubic_wallet/pages/main/tab_explorer.dart';
 import 'package:qubic_wallet/pages/main/tab_settings.dart';
 import 'package:qubic_wallet/pages/main/tab_transfers.dart';
 import 'package:qubic_wallet/pages/main/tab_wallet_contents.dart';
-import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+import 'package:persistent_bottom_nav_bar_v2/persistent-tab-view.dart';
 import 'package:qubic_wallet/resources/qubic_cmd_utils.dart';
 import 'package:qubic_wallet/stores/qubic_hub_store.dart';
 import 'package:qubic_wallet/stores/settings_store.dart';
+import 'package:qubic_wallet/styles/textStyles.dart';
+import 'package:qubic_wallet/styles/themed_controls.dart';
 import 'package:qubic_wallet/timed_controller.dart';
 import 'package:universal_platform/universal_platform.dart';
 
@@ -53,33 +57,67 @@ class _MainScreenState extends State<MainScreen> {
   List<PersistentBottomNavBarItem> _navBarsItems() {
     return [
       PersistentBottomNavBarItem(
-        icon: const Icon(Icons.wallet_outlined),
+        icon: ChangeForeground(
+            color: LightThemeColors.gradient1,
+            child: Image.asset("assets/images/menu-IDs-inactive.png")),
+        inactiveIcon: LightThemeColors.shouldInvertIcon
+            ? ThemedControls.invertedColors(
+                child: Image.asset("assets/images/menu-IDs-inactive.png"))
+            : Image.asset("assets/images/menu-IDs-inactive.png"),
+        contentPadding: 0,
+        iconSize: 36,
         title: ("IDs"),
-        activeColorPrimary: Theme.of(context).primaryColor,
-        inactiveColorPrimary: Theme.of(context).disabledColor,
+        textStyle: TextStyles.menuActive,
+        activeColorPrimary: LightThemeColors.menuActive,
+        inactiveColorPrimary: LightThemeColors.menuInactive,
       ),
       PersistentBottomNavBarItem(
-        icon: const Icon(Icons.compare_arrows),
+        icon: ChangeForeground(
+            color: LightThemeColors.gradient1,
+            child: Image.asset("assets/images/menu-transactions-inactive.png")),
+        inactiveIcon: LightThemeColors.shouldInvertIcon
+            ? ThemedControls.invertedColors(
+                child:
+                    Image.asset("assets/images/menu-transactions-inactive.png"))
+            : Image.asset("assets/images/menu-transactions-inactive.png"),
         title: ("Transfers"),
-        activeColorPrimary: Theme.of(context).primaryColor,
-        inactiveColorPrimary: Theme.of(context).disabledColor,
+        textStyle: TextStyles.menuActive,
+        activeColorPrimary: LightThemeColors.menuActive,
+        inactiveColorPrimary: LightThemeColors.menuInactive,
       ),
       PersistentBottomNavBarItem(
-        icon: const Icon(Icons.account_tree),
+        icon: ChangeForeground(
+            color: LightThemeColors.gradient1,
+            child: Image.asset("assets/images/menu-explorer-inactive.png")),
+        inactiveIcon: LightThemeColors.shouldInvertIcon
+            ? ThemedControls.invertedColors(
+                child: Image.asset("assets/images/menu-explorer-inactive.png"))
+            : Image.asset("assets/images/menu-explorer-inactive.png"),
         title: ("Explorer"),
-        activeColorPrimary: Theme.of(context).primaryColor,
-        inactiveColorPrimary: Theme.of(context).disabledColor,
+        textStyle: TextStyles.menuActive,
+        activeColorPrimary: LightThemeColors.menuActive,
+        inactiveColorPrimary: LightThemeColors.menuInactive,
       ),
       PersistentBottomNavBarItem(
-        icon: Observer(builder: (BuildContext context) {
-          if (qubicHubStore.updateAvailable) {
-            return const Icon(Icons.settings, color: Colors.red);
-          }
-          return const Icon(Icons.settings);
-        }),
+        icon: ChangeForeground(
+            color: LightThemeColors.gradient1,
+            child: Image.asset("assets/images/menu-settings-active.png")),
+        inactiveIcon: LightThemeColors.shouldInvertIcon
+            ? ThemedControls.invertedColors(
+                child: Image.asset("assets/images/menu-settings-inactive.png"))
+            : Image.asset("assets/images/menu-settings-inactive.png"),
+
+        // icon: Observer(builder: (BuildContext context) {
+        //   if (qubicHubStore.updateAvailable) {
+
+        //     return const Icon(Icons.settings, color: Colors.red);
+        //   }
+        //   return const Icon(Icons.settings);
+        // }),
         title: ("Settings"),
-        activeColorPrimary: Theme.of(context).primaryColor,
-        inactiveColorPrimary: Theme.of(context).disabledColor,
+        textStyle: TextStyles.menuActive,
+        activeColorPrimary: LightThemeColors.menuActive,
+        inactiveColorPrimary: LightThemeColors.menuInactive,
       ),
     ];
   }
@@ -140,7 +178,8 @@ class _MainScreenState extends State<MainScreen> {
         screens: _buildScreens(),
         items: _navBarsItems(),
         confineInSafeArea: true,
-        backgroundColor: Theme.of(context).cardColor,
+        backgroundColor: LightThemeColors.menuBg,
+
         // Default is Colors.white.
         handleAndroidBackButtonPress: true, // Default is true.
         resizeToAvoidBottomInset:
@@ -149,7 +188,13 @@ class _MainScreenState extends State<MainScreen> {
         hideNavigationBarWhenKeyboardShows:
             true, // Recommended to set 'resizeToAvoidBottomInset' as true while using this argument. Default is true.
         decoration: NavBarDecoration(
-          borderRadius: BorderRadius.circular(10.0),
+          borderRadius: BorderRadius.circular(0),
+          boxShadow: <BoxShadow>[
+            BoxShadow(
+                color: Colors.black.withOpacity(0.15),
+                blurRadius: 8.0,
+                spreadRadius: 0),
+          ],
           colorBehindNavBar: Theme.of(context).cardColor,
         ),
         popAllScreensOnTapOfSelectedTab: true,

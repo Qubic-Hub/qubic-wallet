@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:qubic_wallet/components/gradient_foreground.dart';
 import 'package:qubic_wallet/di.dart';
 import 'package:qubic_wallet/flutter_flow/theme_paddings.dart';
 import 'package:qubic_wallet/helpers/re_auth_dialog.dart';
 import 'package:qubic_wallet/stores/application_store.dart';
 import 'package:qubic_wallet/stores/settings_store.dart';
 import 'package:settings_ui/settings_ui.dart';
+import 'package:qubic_wallet/styles/edgeInsets.dart';
+import 'package:qubic_wallet/styles/inputDecorations.dart';
+import 'package:qubic_wallet/styles/textStyles.dart';
+import 'package:qubic_wallet/styles/themed_controls.dart';
+import 'package:qubic_wallet/timed_controller.dart';
 
 class ManageBiometrics extends StatefulWidget {
   const ManageBiometrics({super.key});
@@ -71,22 +77,18 @@ class _ManageBiometricsState extends State<ManageBiometrics> {
 
   Widget biometricsControls() {
     var theme = SettingsThemeData(
-      settingsSectionBackground: Theme.of(context).colorScheme.background,
-      settingsListBackground: Theme.of(context).colorScheme.background,
-      dividerColor: Theme.of(context).colorScheme.outline,
+      settingsSectionBackground: LightThemeColors.cardBackground,
+      //Theme.of(context).cardTheme.color,
+      settingsListBackground: LightThemeColors.backkground,
+      dividerColor: Colors.transparent,
       titleTextColor: Theme.of(context).colorScheme.onBackground,
     );
-
     return Column(children: [
       const SizedBox(height: ThemePaddings.hugePadding),
       Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-        Icon(Icons.fingerprint,
-            size: 100,
-            color: Theme.of(context)
-                .textTheme
-                .titleMedium
-                ?.color!
-                .withOpacity(0.3)),
+        GradientForeground(
+            child: Icon(Icons.fingerprint,
+                size: 100, color: Theme.of(context).colorScheme.primary)),
       ]),
       const SizedBox(height: ThemePaddings.hugePadding),
       SettingsList(
@@ -125,7 +127,8 @@ class _ManageBiometricsState extends State<ManageBiometrics> {
                     await settingsStore.setBiometrics(value);
                   },
                   initialValue: enabled,
-                  title: const Text('Enable biometric access'),
+                  title:
+                      Text('Use biometric access', style: TextStyles.labelText),
                 ),
               ],
             ),
@@ -151,40 +154,33 @@ class _ManageBiometricsState extends State<ManageBiometrics> {
       errorDescription =
           "Your device supports biometric authentication but you have not registered your biometric data yet. Please navigate to your device control panel, register your biometric data and try again";
     }
-
     if (errorText == null) {
       return Container();
     }
-    return Column(children: [
-      const SizedBox(height: ThemePaddings.hugePadding),
-      Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-        Icon(Icons.error_outline,
-            size: 100,
-            color: Theme.of(context)
-                .textTheme
-                .titleMedium
-                ?.color!
-                .withOpacity(0.3)),
-      ]),
-      const SizedBox(height: ThemePaddings.smallPadding),
-      Column(children: [
-        Divider(),
-        Text(errorText,
-            textAlign: TextAlign.center,
-            style: Theme.of(context)
-                .textTheme
-                .displaySmall!
-                .copyWith(fontFamily: ThemeFonts.primary)),
-        errorDescription != null
-            ? Text(errorDescription,
-                textAlign: TextAlign.justify,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodySmall!
-                    .copyWith(fontFamily: ThemeFonts.secondary))
-            : Container()
-      ])
-    ]);
+    return Padding(
+        padding: EdgeInsets.only(top: ThemePaddings.bigPadding),
+        child: ThemedControls.card(
+            child: Column(children: [
+          Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  GradientForeground(
+                      child: Image.asset("assets/images/Group 2358.png")),
+                  ThemedControls.spacerHorizontalNormal(),
+                  Expanded(
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                        Text(errorText, style: TextStyles.labelText),
+                        ThemedControls.spacerVerticalNormal(),
+                        Text(errorDescription ?? "",
+                            style: TextStyles.textNormal)
+                      ]))
+                ]),
+          ]),
+        ])));
   }
 
   Widget getScrollView() {
@@ -196,20 +192,10 @@ class _ManageBiometricsState extends State<ManageBiometrics> {
                   child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text("Manage biometric unlock",
-                  style: Theme.of(context)
-                      .textTheme
-                      .displayMedium!
-                      .copyWith(fontFamily: ThemeFonts.primary)),
-              Container(
-                margin: const EdgeInsets.only(top: 5.0),
-              ),
-              Padding(
-                  padding:
-                      const EdgeInsets.only(top: ThemePaddings.normalPadding),
-                  child: Text(
-                      "You can enable strong authentication via biometrics. If enabled, you can sign in to your wallet and issue transfers without a password",
-                      style: Theme.of(context).textTheme.bodyMedium)),
+              ThemedControls.pageHeader(headerText: "Manage biometric unlock"),
+              Text(
+                  "You can enable strong authentication via biometrics. If enabled, you can sign in to your wallet and issue transfers without a password",
+                  style: Theme.of(context).textTheme.bodyMedium),
               canUseBiometrics == null
                   ? loadingIndicator()
                   : canUseBiometrics! == true
@@ -220,21 +206,18 @@ class _ManageBiometricsState extends State<ManageBiometrics> {
         ]));
   }
 
-  List<Widget> getButtons() {
-    return [
-      !isLoading
-          ? TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text("CANCEL",
-                  style: Theme.of(context).textTheme.labelLarge!.copyWith(
-                        color: Theme.of(context).primaryColor,
-                        fontWeight: FontWeight.bold,
-                      )))
-          : Container(),
-      FilledButton(onPressed: saveIdHandler, child: const Text("SAVE NEW ID"))
-    ];
+  Widget getButtons() {
+    return !isLoading
+        ? Expanded(
+            child: ThemedControls.primaryButtonBigWithChild(
+                child: Padding(
+                    padding: const EdgeInsets.all(ThemePaddings.normalPadding),
+                    child:
+                        Text("Go back", style: TextStyles.primaryButtonText)),
+                onPressed: () {
+                  Navigator.pop(context);
+                }))
+        : Container();
   }
 
   void saveIdHandler() async {
@@ -257,10 +240,11 @@ class _ManageBiometricsState extends State<ManageBiometrics> {
               backgroundColor: Colors.transparent,
             ),
             body: SafeArea(
-                minimum: const EdgeInsets.fromLTRB(ThemePaddings.normalPadding,
-                    0, ThemePaddings.normalPadding, ThemePaddings.miniPadding),
+                minimum: ThemeEdgeInsets.pageInsets
+                    .copyWith(bottom: ThemePaddings.normalPadding),
                 child: Column(children: [
                   Expanded(child: getScrollView()),
+                  Row(children: [getButtons()]),
                 ]))));
   }
 }

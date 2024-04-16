@@ -4,6 +4,12 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:qubic_wallet/components/explorer_results/explorer_result_qubic_id.dart';
 import 'package:qubic_wallet/components/explorer_results/explorer_result_tick.dart';
 import 'package:qubic_wallet/components/explorer_results/explorer_result_transaction.dart';
+import 'package:qubic_wallet/stores/application_store.dart';
+import 'package:qubic_wallet/styles/edgeInsets.dart';
+import 'package:qubic_wallet/styles/inputDecorations.dart';
+import 'package:qubic_wallet/styles/textStyles.dart';
+import 'package:qubic_wallet/styles/themed_controls.dart';
+import 'package:collection/collection.dart';
 
 import 'package:qubic_wallet/di.dart';
 import 'package:qubic_wallet/dtos/explorer_query_dto.dart';
@@ -23,12 +29,25 @@ class _ExplorerSearchState extends State<ExplorerSearch> {
   final _formKey = GlobalKey<FormBuilderState>();
   final ExplorerStore explorerStore = getIt<ExplorerStore>();
   final QubicLi qubicLi = getIt<QubicLi>();
+  final ApplicationStore appStore = getIt<ApplicationStore>();
 
+  late TextEditingController searchController = TextEditingController();
+  bool showClearButton = false;
   List<ExplorerQueryDto>? searchResults;
   String lastSearchQuery = "";
   @override
   void initState() {
     super.initState();
+
+    searchController.addListener(() {
+      //_formKey.currentState!.fields["searchTerm"]!
+      //  .didChange(searchController.text);
+      if (searchController.text.length == 0) {
+        setState(() => showClearButton = false);
+      } else {
+        setState(() => showClearButton = true);
+      }
+    });
   }
 
   @override
@@ -39,11 +58,15 @@ class _ExplorerSearchState extends State<ExplorerSearch> {
   List<Widget> getItems() {
     List<Widget> items = [];
     for (var item in searchResults!) {
+      String? walletAccountName = appStore.currentQubicIDs
+          .firstWhereOrNull((e) => e.publicId == item.id)
+          ?.name;
       items.add(Container(
           padding: const EdgeInsets.all(ThemePaddings.miniPadding),
           child: Column(children: [
             item.type == ExplorerResult.publicId
-                ? ExplorerResultQubicId(item: item)
+                ? ExplorerResultQubicId(
+                    item: item, walletAccountName: walletAccountName)
                 : item.type == ExplorerResult.tick
                     ? ExplorerResultTick(item: item)
                     : ExplorerResultTransaction(item: item)
@@ -61,32 +84,26 @@ class _ExplorerSearchState extends State<ExplorerSearch> {
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                Text("Explorer search",
-                    style: Theme.of(context)
-                        .textTheme
-                        .displayMedium!
-                        .copyWith(fontFamily: ThemeFonts.primary)),
-                Container(
-                  margin: const EdgeInsets.only(top: 5.0),
-                ),
-                Padding(
-                    padding:
-                        const EdgeInsets.only(top: ThemePaddings.normalPadding),
-                    child: FormBuilder(
-                        key: _formKey,
-                        child: Column(children: [
-                          FormBuilderTextField(
-                            name: "searchTerm",
-                            validator: FormBuilderValidators.compose([
-                              FormBuilderValidators.required(),
-                            ]),
-                            maxLines: 2,
-                            readOnly: isLoading,
-                            decoration: InputDecoration(
-                                labelText: 'Tick / TX ID / Public ID',
-                                suffix: SizedBox(
+                ThemedControls.pageHeader(headerText: "Explorer search"),
+                ThemedControls.spacerVerticalBig(),
+                Text("Tick / TX ID / Public ID", style: TextStyles.labelText),
+                ThemedControls.spacerVerticalSmall(),
+                FormBuilder(
+                    key: _formKey,
+                    child: Column(children: [
+                      FormBuilderTextField(
+                        name: "searchTerm",
+                        validator: FormBuilderValidators.compose([
+                          FormBuilderValidators.required(),
+                        ]),
+                        maxLines: 1,
+                        controller: searchController,
+                        readOnly: isLoading,
+                        decoration: ThemeInputDecorations.bigInputbox.copyWith(
+                            suffix: showClearButton
+                                ? SizedBox(
                                     height: 24,
-                                    width: 24,
+                                    width: 14,
                                     child: IconButton(
                                         padding: const EdgeInsets.all(0),
                                         icon: const Icon(Icons.clear, size: 18),
@@ -94,13 +111,14 @@ class _ExplorerSearchState extends State<ExplorerSearch> {
                                           _formKey.currentState!
                                               .fields["searchTerm"]!
                                               .didChange(null);
-                                        }))),
-                            autocorrect: false,
-                            autofillHints: null,
-                          ),
-                        ]))),
-                searchResults == null ? Container() : const Divider(),
-                const SizedBox(height: ThemePaddings.smallPadding),
+                                        }))
+                                : SizedBox(
+                                    height: 21, width: 14, child: Container())),
+                        autocorrect: false,
+                        autofillHints: null,
+                      ),
+                    ])),
+                ThemedControls.spacerVerticalSmall(),
                 Builder(builder: (context) {
                   if (searchResults == null) {
                     return Container();
@@ -109,21 +127,26 @@ class _ExplorerSearchState extends State<ExplorerSearch> {
                     return SizedBox(
                         width: double.infinity,
                         child: Column(children: [
-                          const Text("No results found matching:",
-                              textAlign: TextAlign.center),
+                          ThemedControls.spacerVerticalNormal(),
+                          Text("No results found matching",
+                              textAlign: TextAlign.center,
+                              style: TextStyles.labelText),
+                          ThemedControls.spacerVerticalSmall(),
                           Text(lastSearchQuery, textAlign: TextAlign.center)
                         ]));
                   }
 
-                  return Container(
-                      child: Column(children: [
-                    Text(
-                      "Found ${searchResults!.length} result${searchResults!.length > 1 ? "s" : ""}",
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: ThemePaddings.smallPadding),
-                    Column(children: getItems())
-                  ]));
+                  return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ThemedControls.spacerVerticalNormal(),
+                        Text(
+                          "Found ${searchResults!.length} result${searchResults!.length > 1 ? "s" : ""}",
+                          textAlign: TextAlign.left,
+                        ),
+                        const SizedBox(height: ThemePaddings.smallPadding),
+                        Column(children: getItems())
+                      ]);
                 })
               ])))
         ]));
@@ -131,27 +154,31 @@ class _ExplorerSearchState extends State<ExplorerSearch> {
 
   List<Widget> getButtons() {
     return [
-      !isLoading
-          ? TextButton(
+      Expanded(
+          child: ThemedControls.transparentButtonBigWithChild(
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: Text("BACK",
-                  style: Theme.of(context).textTheme.labelLarge!.copyWith(
-                        color: Theme.of(context).primaryColor,
-                        fontWeight: FontWeight.bold,
-                      )))
-          : Container(),
-      FilledButton(
-          onPressed: searchHandler,
-          child: isLoading
-              ? SizedBox(
-                  height: 24,
-                  width: 24,
-                  child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                          Theme.of(context).colorScheme.onPrimary)))
-              : const Text("SEARCH"))
+              child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: ThemePaddings.normalPadding),
+                  child:
+                      Text("Back", style: TextStyles.transparentButtonText)))),
+      ThemedControls.spacerHorizontalNormal(),
+      Expanded(
+          child: ThemedControls.primaryButtonBigWithChild(
+              onPressed: searchHandler,
+              child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: ThemePaddings.normalPadding),
+                  child: isLoading
+                      ? SizedBox(
+                          height: 23,
+                          width: 24,
+                          child: CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                  Theme.of(context).colorScheme.onPrimary)))
+                      : Text("Search", style: TextStyles.primaryButtonText))))
     ];
   }
 
@@ -190,12 +217,11 @@ class _ExplorerSearchState extends State<ExplorerSearch> {
               backgroundColor: Colors.transparent,
             ),
             body: SafeArea(
-                minimum: const EdgeInsets.fromLTRB(ThemePaddings.normalPadding,
-                    0, ThemePaddings.normalPadding, ThemePaddings.miniPadding),
+                minimum: ThemeEdgeInsets.pageInsets,
                 child: Column(children: [
                   Expanded(child: getScrollView()),
                   Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: getButtons())
                 ]))));
   }

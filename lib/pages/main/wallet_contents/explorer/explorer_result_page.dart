@@ -8,6 +8,7 @@ import 'package:qubic_wallet/dtos/explorer_tick_info_dto.dart';
 import 'package:qubic_wallet/flutter_flow/theme_paddings.dart';
 import 'package:qubic_wallet/resources/qubic_li.dart';
 import 'package:qubic_wallet/stores/explorer_store.dart';
+import 'package:qubic_wallet/styles/edgeInsets.dart';
 
 enum ExplorerResultType { publicId, tick, transaction }
 
@@ -16,12 +17,14 @@ class ExplorerResultPage extends StatefulWidget {
   final int? tick;
   final String? qubicId;
   final String? focusedTransactionHash;
+  final String? walletAccountName;
   const ExplorerResultPage(
       {super.key,
       required this.resultType,
       this.tick,
       this.qubicId,
-      this.focusedTransactionHash});
+      this.focusedTransactionHash,
+      this.walletAccountName});
 
   @override
   // ignore: library_private_types_in_public_api
@@ -202,11 +205,17 @@ class _ExplorerResultPageState extends State<ExplorerResultPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.transparent,
+          backgroundColor: resultType == ExplorerResultType.tick ||
+                  resultType == ExplorerResultType.transaction
+              ? LightThemeColors.cardBackground
+              : Colors.transparent,
         ),
         body: SafeArea(
-            minimum: const EdgeInsets.fromLTRB(ThemePaddings.normalPadding, 0,
-                ThemePaddings.normalPadding, ThemePaddings.miniPadding),
+            minimum: resultType == ExplorerResultType.tick ||
+                    resultType == ExplorerResultType.transaction
+                ? EdgeInsets.fromLTRB(
+                    0, 0, 0, ThemeEdgeInsets.pageInsets.bottom)
+                : ThemeEdgeInsets.pageInsets,
             child: error != null
                 ? getErrorView()
                 : isLoading

@@ -1,5 +1,5 @@
 # Qubic Wallet
-This is a fully functional wallet for the Qubic project (https://discord.com/invite/2vDMR8m). Works great in Android and Windows (check releases pages). Tested and works on MacOS and iOS (no releases provided, you will have to manually compile it).
+Official wallet app for the QUBIC network (https://qubic.org/). Find more about QUBIC on (https://doc.qubic.world/). Find us on discord (https://discord.com/invite/2vDMR8m). 
 
 ## Functionality
 
@@ -15,23 +15,20 @@ This is a fully functional wallet for the Qubic project (https://discord.com/inv
 - [x] Require password to login
 - [x] Require password view seed / make transfer
 - [x] Biometric authentication (provided that your phone has the required hardware)
-- [x] Dark / light themes
 - [x] Use QR codes
-- [ ] Address book - coming soon
-- [ ] One-touch backup / restore - coming soon
 
 # Supported Platforms
 
 - [x] Android
 - [x] Windows
-- [ ] Linux - coming soon
-- [ ] iOS - coming soon
-- [ ] MacOS - coming soon
-- [ ] Web - coming soon
+- [x] Linux
+- [ ] iOS - submitted
+- [ ] MacOS - submitted
+- [ ] Web - submitted
 
 ## Distribution
 
-- [x] Android: Signed APK
+- [x] Android: Signed APK (check qubic-hub releases page)
 - [x] Windows: Executable
 - [ ] Android: App stores
 
@@ -84,8 +81,9 @@ Soon there will be a dedicated compilation manual page. Until then here's some b
 
 # Contribution - Bug reports
 
-Feel free to contribute to the project. Just create an MR. Tests are being written and will be added to the repo. Until then, checking is manual.
-Feel free to post any found bugs in Issues page.
+Feel free to contribute to the project. Just create an MR. Feel free to post any found bugs in Issues page. We cannot support you in any case. You are welcome to provide updates, bugfixes or other code changes by pull requests.
+
+
 
 
 # Donations
