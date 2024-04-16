@@ -60,7 +60,7 @@ Your keys are never shared to any 3rd party. Yet the wallet uses some backend se
 
 ### Access to Qubic Network
 
-Access to the Qubic Network is currently provided by the wonderful work of (https://www.qubic.li). We are working with a new version to iterface directly with the Computor nodes.
+Access to the Qubic Network is currently provided by the wonderful work of (https://www.qubic.org). We are working with a new version to iterface directly with the Computor nodes.
 
 ### Version checking
 
